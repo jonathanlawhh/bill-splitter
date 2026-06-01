@@ -126,14 +126,25 @@
                       <span class="stepper-val">{{ selectedQuantities[idx] }}</span>
                       <button class="stepper-btn" @click="incrementQty(idx, item.quantity)">+</button>
                     </div>
+                    <div v-if="item.quantity === 1" class="mt-2 d-flex align-center gap-2 flex-wrap">
+                      <label class="neo-checkbox-container">
+                        <input type="checkbox" v-model="splitSettings[idx].enabled" class="neo-checkbox" />
+                        <span class="font-weight-bold text-caption ml-1">Split evenly</span>
+                      </label>
+                      <div v-if="splitSettings[idx].enabled" class="d-flex align-center gap-1">
+                        <span class="text-caption font-weight-bold ml-1">into</span>
+                        <input type="number" v-model.number="splitSettings[idx].parts" class="neo-parts-input ml-1"
+                          @input="sanitizeParts(idx)" />
+                        <span class="text-caption font-weight-bold ml-1">parts</span>
+                      </div>
+                    </div>
                   </div>
                 </div>
 
                 <div class="d-flex align-center gap-4">
                   <div class="text-right font-weight-black min-w-80">
                     <div :class="selectedQuantities[idx] > 0 ? 'text-teal-color' : 'text-dark-gray'">
-                      {{ formatCurrency((item.price * selectedQuantities[idx]) - ((item.discount || 0) *
-                        (selectedQuantities[idx] / item.quantity)), receiptData.currency) }}
+                      {{ formatCurrency(getItemShare(item, idx).total, receiptData.currency) }}
                     </div>
                   </div>
 
@@ -159,12 +170,12 @@
               <div class="d-flex justify-between py-2 border-b">
                 <span>Tax Share ({{ (receiptData.taxRate * 100).toFixed(1) }}%): </span>
                 <span v-if="!receiptData.isTaxInItem">+ {{ formatCurrency(calcs.myIndividualTax, receiptData.currency)
-                  }}</span>
+                }}</span>
                 <span class="ml-1" v-if="receiptData.isTaxInItem">Included in item</span>
               </div>
               <div class="d-flex justify-between py-2 border-b" v-if="receiptData.serviceCharge > 0">
                 <span>Service Charge ({{ (receiptData.serviceChargeRate * 100).toFixed(1) }}%): + {{
-                  formatCurrency(receiptData.serviceChargeRate, receiptData.currency) }}</span>
+                  formatCurrency(calcs.myIndividualServiceCharge, receiptData.currency) }}</span>
               </div>
               <div class="d-flex justify-between py-2 border-b" v-if="receiptData.discount > 0">
                 <span>Global Discount Share ({{ (receiptData.discountRate * 100).toFixed(1) }}%): - {{
@@ -197,7 +208,7 @@
             <div class="d-flex justify-between py-1 text-body-2" v-if="receiptData.serviceCharge > 0">
               <span>Overall Service Charge:</span>
               <span class="font-weight-bold">{{ formatCurrency(receiptData.serviceCharge, receiptData.currency)
-              }}</span>
+                }}</span>
             </div>
             <!-- Always show tax even if it is 0 -->
             <div class="d-flex justify-between py-1 text-body-2">
@@ -244,6 +255,7 @@ const receiptData = ref({
   total: 0
 })
 const selectedQuantities = ref({}) // idx -> quantity
+const splitSettings = ref({}) // idx -> { enabled: boolean, parts: number }
 
 // Global injected values from app.vue
 const globalApiKey = inject('globalApiKey', ref(''))
@@ -392,8 +404,10 @@ const processReceipt = async (base64Str) => {
 
       // Initialize checklist quantities to 0
       selectedQuantities.value = {}
+      splitSettings.value = {}
       for (let i = 0; i < response.data.items.length; i++) {
         selectedQuantities.value[i] = 0
+        splitSettings.value[i] = { enabled: false, parts: 2 }
       }
 
       // Increment usage count tracking
@@ -432,6 +446,10 @@ const decrementQty = (idx) => {
 const resetSplits = () => {
   for (const idx in selectedQuantities.value) {
     selectedQuantities.value[idx] = 0
+    if (splitSettings.value[idx]) {
+      splitSettings.value[idx].enabled = false
+      splitSettings.value[idx].parts = 2
+    }
   }
   showNotification('Debt gone...')
 }
@@ -459,6 +477,41 @@ const newBill = () => {
     total: 0
   }
   selectedQuantities.value = {}
+  splitSettings.value = {}
+}
+
+const getItemShare = (item, idx) => {
+  const qty = selectedQuantities.value[idx] || 0
+  if (qty <= 0) {
+    return { quantity: 0, cost: 0, discount: 0, total: 0, isSplit: false, parts: 1 }
+  }
+  let effectiveQty = qty
+  const isSplit = item.quantity === 1 && splitSettings.value[idx]?.enabled
+  const parts = isSplit ? Math.max(2, parseInt(splitSettings.value[idx]?.parts, 10) || 2) : 1
+  if (isSplit) {
+    effectiveQty = 1 / parts
+  }
+  const cost = item.price * effectiveQty
+  const discount = (item.discount || 0) * (effectiveQty / item.quantity)
+  return {
+    quantity: effectiveQty,
+    cost,
+    discount,
+    total: cost - discount,
+    isSplit,
+    parts
+  }
+}
+
+const sanitizeParts = (idx) => {
+  if (splitSettings.value[idx]) {
+    let val = parseInt(splitSettings.value[idx].parts, 10)
+    if (isNaN(val)) {
+      splitSettings.value[idx].parts = 0
+    } else {
+      splitSettings.value[idx].parts = val
+    }
+  }
 }
 
 // Calculations Computed Property (optimized in single-pass loop)
@@ -479,10 +532,10 @@ const calcs = computed(() => {
   const selectedItemBreakdown = []
   for (let i = 0; i < items.length; i++) {
     const item = items[i]
-    const selectedQty = selectedQuantities.value[i] || 0
-    if (selectedQty > 0) {
-      const itemCost = item.price * selectedQty
-      const itemDiscount = (item.discount || 0)
+    const share = getItemShare(item, i)
+    if (share.quantity > 0) {
+      const itemCost = share.cost
+      const itemDiscount = share.discount
       const itemTax = itemCost * (receiptData.value?.taxRate || 0)
       const itemServiceCharge = itemCost * (receiptData.value?.serviceChargeRate || 0)
       const itemGlobalDiscount = itemCost * (receiptData.value?.discountRate || 0)
@@ -495,12 +548,14 @@ const calcs = computed(() => {
 
       selectedItemBreakdown.push({
         name: item.name,
-        quantity: selectedQty,
+        quantity: share.quantity,
         price: item.price,
         discount: itemDiscount,
         globalDiscount: itemGlobalDiscount,
         serviceCharge: itemServiceCharge,
-        totalPrice: itemCost + itemTax + itemServiceCharge - itemDiscount - itemGlobalDiscount
+        totalPrice: itemCost + itemTax + itemServiceCharge - itemDiscount - itemGlobalDiscount,
+        isSplit: share.isSplit,
+        parts: share.parts
       })
     }
   }
@@ -514,6 +569,8 @@ const calcs = computed(() => {
   return {
     selectedSubtotal: myItemSubtotal,
     myIndividualDiscount,
+    myIndividualTax,
+    myIndividualServiceCharge,
     receiptItemSubtotal,
     myTax,
     myServiceCharge,
@@ -538,7 +595,10 @@ const shareDebt = async () => {
   // Generate the sharing URL with the base64-encoded JSON payload
   let shareUrl = ''
   try {
-    const payload = JSON.stringify(receiptData.value)
+    const payload = JSON.stringify({
+      ...receiptData.value,
+      splitSettings: splitSettings.value
+    })
     const encoded = safeBtoa(payload)
     shareUrl = `${window.location.origin}${window.location.pathname}?bill=${encoded}`
   } catch (err) {
@@ -551,7 +611,11 @@ const shareDebt = async () => {
   }
   text += `\n===================================\n`
   details.selectedItemBreakdown.forEach(item => {
-    text += `• ${item.name} (${item.quantity}x @ ${formatCurrency(item.price, currency)}): ${formatCurrency(item.totalPrice, currency)}\n`
+    if (item.isSplit) {
+      text += `• ${item.name} (Split 1/${item.parts} @ ${formatCurrency(item.price, currency)}): ${formatCurrency(item.totalPrice, currency)}\n`
+    } else {
+      text += `• ${item.name} (${item.quantity}x @ ${formatCurrency(item.price, currency)}): ${formatCurrency(item.totalPrice, currency)}\n`
+    }
     if (item.discount > 0) {
       text += `  Item Discount: -${formatCurrency(item.discount, currency)}\n`
     }
@@ -561,13 +625,13 @@ const shareDebt = async () => {
   if (details.myIndividualDiscount > 0) {
     text += `Item Discounts: -${formatCurrency(details.myIndividualDiscount, currency)}\n`
   }
-  if (details.myTax > 0) {
-    text += `Tax (${(receiptData.value.taxRate * 100).toFixed(1)}%): +${formatCurrency(details.myTax, currency)}\n`
+  if (details.myIndividualTax > 0) {
+    text += `Tax (${(receiptData.value.taxRate * 100).toFixed(1)}%): +${formatCurrency(details.myIndividualTax, currency)}\n`
   }
-  if (receiptData.value.serviceCharge > 0) {
-    text += `Service Charge (${(receiptData.value.serviceChargeRate * 100).toFixed(1)}%): +${formatCurrency(details.myServiceCharge, currency)}\n`
+  if (details.myIndividualServiceCharge > 0) {
+    text += `Service Charge (${(receiptData.value.serviceChargeRate * 100).toFixed(1)}%): +${formatCurrency(details.myIndividualServiceCharge, currency)}\n`
   }
-  if (receiptData.value.discount > 0) {
+  if (details.myGlobalDiscount > 0) {
     text += `Discount (${(receiptData.value.discountRate * 100).toFixed(1)}%): -${formatCurrency(details.myGlobalDiscount, currency)}\n`
   }
   text += `===================================\n`
@@ -607,7 +671,10 @@ const shareBill = async () => {
   // Generate the sharing URL with the base64-encoded JSON payload
   let shareUrl = ''
   try {
-    const payload = JSON.stringify(receiptData.value)
+    const payload = JSON.stringify({
+      ...receiptData.value,
+      splitSettings: splitSettings.value
+    })
     const encoded = safeBtoa(payload)
     shareUrl = `${window.location.origin}${window.location.pathname}?bill=${encoded}`
   } catch (err) {
@@ -681,8 +748,10 @@ watch(
             receiptData.value = data
             // Initialize checklist quantities to 0
             selectedQuantities.value = {}
+            splitSettings.value = {}
             for (let i = 0; i < data.items.length; i++) {
               selectedQuantities.value[i] = 0
+              splitSettings.value[i] = (data.splitSettings && data.splitSettings[i]) || { enabled: false, parts: 2 }
             }
             state.value = 'splitting'
             showNotification('Shared bill loaded!')
@@ -888,5 +957,60 @@ import { nextTick } from 'vue'
   padding: 0 12px;
   font-weight: 800;
   font-size: 1rem;
+}
+
+.neo-checkbox-container {
+  display: inline-flex;
+  align-items: center;
+  cursor: pointer;
+  user-select: none;
+}
+
+.neo-checkbox {
+  width: 18px;
+  height: 18px;
+  appearance: none;
+  background-color: var(--color-white);
+  border: 2px solid var(--color-navy);
+  box-shadow: 2px 2px 0px 0px var(--color-navy);
+  cursor: pointer;
+  position: relative;
+  outline: none;
+  transition: all 0.1s ease;
+  vertical-align: middle;
+}
+
+.neo-checkbox:checked {
+  background-color: var(--color-pink);
+}
+
+.neo-checkbox:checked::after {
+  content: '';
+  position: absolute;
+  left: 4px;
+  top: 1px;
+  width: 5px;
+  height: 9px;
+  border: solid var(--color-white);
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+.neo-parts-input {
+  width: 60px;
+  height: 28px;
+  padding: 0 4px;
+  background-color: var(--color-white);
+  border: 2px solid var(--color-navy) !important;
+  border-radius: 4px !important;
+  color: var(--color-navy) !important;
+  font-weight: 800;
+  font-size: 0.85rem;
+  text-align: center;
+  outline: none;
+}
+
+.neo-parts-input:focus {
+  box-shadow: 2px 2px 0px 0px var(--color-navy);
 }
 </style>
