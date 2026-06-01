@@ -1,0 +1,892 @@
+<template>
+  <div class="index-page">
+    <!-- Landing State -->
+    <div v-if="state === 'landing'" class="landing-state d-flex flex-column align-center justify-center">
+      <div class="text-center mb-10 max-width-600">
+        <h2 class="text-h3 font-weight-black mb-4">50/50, AA, GOING DUTCH </h2>
+        <p class="text-h6 font-weight-bold text-dark-gray">
+          Everything also can share share, until it comes to money
+        </p>
+      </div>
+
+      <div class="buttons-grid">
+        <!-- Button 1: Upload Image -->
+        <button class="neo-card neo-large-btn teal" @click="triggerFileInput" :disabled="isLimitExceeded">
+          <v-icon size="64" class="mb-4">mdi-image-plus</v-icon>
+          <span class="btn-title">UPLOAD RECEIPT</span>
+          <span class="btn-subtitle">From Photo Library</span>
+        </button>
+
+        <!-- Button 2: Open Camera -->
+        <button class="neo-card neo-large-btn pink" @click="startCamera" :disabled="isLimitExceeded">
+          <v-icon size="64" class="mb-4">mdi-camera</v-icon>
+          <span class="btn-title">OPEN CAMERA</span>
+          <span class="btn-subtitle">Capture Receipt Live</span>
+        </button>
+      </div>
+
+      <!-- Limit warning -->
+      <div v-if="isLimitExceeded" class="neo-card p-4 mt-6 d-flex align-center gap-4 bg-white"
+        style="max-width: 600px; border-color: var(--color-pink) !important;">
+        <v-icon color="#FF007F" size="32">mdi-alert-decagram</v-icon>
+        <div class="ml-4">
+          <div class="font-weight-black text-pink-color">DAILY LIMIT REACHED</div>
+          <div class="text-caption">You have processed 3 receipts today. Please try again tomorrow!</div>
+        </div>
+      </div>
+
+      <!-- Hidden inputs for file trigger and mobile camera capture fallback -->
+      <input ref="fileInput" type="file" accept="image/*" class="d-none" @change="handleFileChange" />
+
+      <!-- Settings warning if API Key not found -->
+      <div v-if="!hasApiKey" class="neo-card p-4 mt-10 d-flex align-center gap-4">
+        <v-icon color="#FF007F" size="32">mdi-alert-decagram</v-icon>
+        <div class="ml-4">
+          <div class="font-weight-black">No Gemini API Key found</div>
+          <div class="text-caption">
+            Provide your key in Settings (top-right) so the developer can afford his own milk-tea
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- WebRTC In-App Camera View -->
+    <div v-else-if="state === 'camera'" class="camera-state neo-card p-6">
+      <div class="d-flex justify-between align-center mb-4">
+        <h3 class="text-h5 font-weight-black">LIVE CAMERA SNAPSHOT</h3>
+        <v-btn class="neo-btn navy" @click="stopCamera">Cancel</v-btn>
+      </div>
+
+      <div class="video-container neo-border mb-6">
+        <video ref="videoElement" autoplay playsinline class="w-100 h-100"></video>
+        <div class="scanline"></div>
+      </div>
+
+      <div class="d-flex justify-center gap-4">
+        <v-btn class="neo-btn teal px-8 py-4 text-h6" @click="captureFrame">
+          <v-icon class="mr-2">mdi-camera-iris</v-icon> Capture Photo
+        </v-btn>
+      </div>
+      <canvas ref="canvasElement" class="d-none"></canvas>
+    </div>
+
+    <!-- Loading / OCR Processing State -->
+    <div v-else-if="state === 'processing'"
+      class="processing-state d-flex flex-column align-center justify-center py-12">
+      <div class="neo-card p-8 text-center bg-white max-width-800">
+        <div class="loading-scanner mb-6">
+          <div v-if="imagePreview" class="image-wrap neo-border">
+            <img :src="imagePreview" alt="Receipt Preview" />
+            <div class="scanner-bar"></div>
+          </div>
+          <v-progress-linear color="#FF007F" indeterminate height="10" class="neo-border mt-6"></v-progress-linear>
+        </div>
+        <h3 class="text-h4 font-weight-black mb-2 animate-pulse">PROCESSING...</h3>
+        <p class="font-weight-bold text-dark-gray">Ya it is not magic and needs time</p>
+      </div>
+    </div>
+
+    <!-- Interactive Splitting State -->
+    <div v-else-if="state === 'splitting'" class="splitting-state">
+      <div class="d-flex flex-column flex-md-row gap-6">
+        <!-- Left Side: Receipt Items list -->
+        <div class="flex-grow-1 flex-basis-0 w-100">
+          <div class="neo-card p-6 bg-white height-100">
+            <div class="d-flex justify-between align-center mb-6 border-b pb-4">
+              <div>
+                <h3 class="text-h5 font-weight-black">{{ receiptData.merchantName || 'ITEMS ON RECEIPT' }}</h3>
+                <p class="text-caption text-dark-gray mb-0">
+                  <span v-if="receiptData.date" class="mr-2">📅 {{ receiptData.date }}</span>
+                </p>
+              </div>
+              <div>
+                <v-btn class="neo-btn pink" @click="newBill">
+                  <v-icon class="mr-1">mdi-arrow-left</v-icon> New Bill</v-btn>
+              </div>
+
+            </div>
+
+            <!-- List of Items -->
+            <div class="items-list d-flex flex-column gap-4">
+              <div v-for="(item, idx) in receiptData.items" :key="idx"
+                class="item-row neo-card p-4 d-flex align-center justify-between transition-all"
+                :class="{ 'selected-neo-card': selectedQuantities[idx] > 0 }">
+                <!-- Selection Details -->
+                <div class="d-flex align-center gap-4 flex-grow-1">
+                  <div>
+                    <div class="font-weight-black text-body-1">{{ item.name }}</div>
+                    <div class="text-caption text-dark-gray">
+                      {{ formatCurrency(item.price, receiptData.currency) }} each × {{ item.quantity }}
+                      <span v-if="item.discount > 0" class="d-block text-pink-color font-weight-bold">
+                        Item Discount: -{{ formatCurrency(item.discount, receiptData.currency) }}
+                      </span>
+                    </div>
+                    <div class="neo-card d-flex align-center bg-white" style="width: 148px">
+                      <button class="stepper-btn" @click="decrementQty(idx)">-</button>
+                      <span class="stepper-val">{{ selectedQuantities[idx] }}</span>
+                      <button class="stepper-btn" @click="incrementQty(idx, item.quantity)">+</button>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="d-flex align-center gap-4">
+                  <div class="text-right font-weight-black min-w-80">
+                    <div :class="selectedQuantities[idx] > 0 ? 'text-teal-color' : 'text-dark-gray'">
+                      {{ formatCurrency((item.price * selectedQuantities[idx]) - ((item.discount || 0) *
+                        (selectedQuantities[idx] / item.quantity)), receiptData.currency) }}
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex-grow-1 flex-basis-0 w-100">
+          <div class="neo-card p-6 bg-primary mb-6">
+            <h3 class="text-h4 font-weight-black mb-6 text-center text-white">YOUR DEBT</h3>
+
+            <div class="calc-table mb-6">
+              <div class="d-flex justify-between py-2 border-b text-navy font-weight-bold">
+                <span>Item Subtotal: {{ formatCurrency(calcs.selectedSubtotal, receiptData.currency) }}</span>
+              </div>
+              <div v-if="calcs.myIndividualDiscount > 0" class="d-flex justify-between py-2 border-b">
+                <span>Item Discounts:</span>
+                <span class="ml-1">- {{ formatCurrency(calcs.myIndividualDiscount, receiptData.currency) }}</span>
+              </div>
+              <!-- Always show Tax Share even if it is 0 -->
+              <div class="d-flex justify-between py-2 border-b">
+                <span>Tax Share ({{ (receiptData.taxRate * 100).toFixed(1) }}%): </span>
+                <span v-if="!receiptData.isTaxInItem">+ {{ formatCurrency(calcs.myIndividualTax, receiptData.currency)
+                  }}</span>
+                <span class="ml-1" v-if="receiptData.isTaxInItem">Included in item</span>
+              </div>
+              <div class="d-flex justify-between py-2 border-b" v-if="receiptData.serviceCharge > 0">
+                <span>Service Charge ({{ (receiptData.serviceChargeRate * 100).toFixed(1) }}%): + {{
+                  formatCurrency(receiptData.serviceChargeRate, receiptData.currency) }}</span>
+              </div>
+              <div class="d-flex justify-between py-2 border-b" v-if="receiptData.discount > 0">
+                <span>Global Discount Share ({{ (receiptData.discountRate * 100).toFixed(1) }}%): - {{
+                  formatCurrency(calcs.myGlobalDiscount, receiptData.currency) }}</span>
+              </div>
+              <div class="d-flex justify-between py-2 border-b align-center text-navy font-weight-black">
+                <span class="text-h5">Me owe : {{ formatCurrency(calcs.myTotal, receiptData.currency) }}</span>
+              </div>
+            </div>
+
+            <div class="d-flex flex-column gap-3">
+              <v-btn class="neo-btn teal font-weight-black w-80" @click="shareDebt">
+                <v-icon class="mr-2">mdi-share</v-icon> Share My Debt
+              </v-btn>
+              <v-btn class="neo-btn font-weight-black w-80" @click="shareBill">
+                <v-icon class="mr-2">mdi-share-variant</v-icon> Share Bill
+              </v-btn>
+              <v-btn class="neo-btn w-80 py-4" @click="resetSplits">
+                <v-icon class="mr-2">mdi-restore</v-icon> Reset Selection
+              </v-btn>
+            </div>
+          </div>
+
+          <div class="neo-card p-6 bg-white">
+            <h4 class="text-h6 font-weight-black mb-4">RECEIPT OVERALL</h4>
+            <div class="d-flex justify-between py-1 text-body-2">
+              <span>Items Subtotal:</span>
+              <span class="font-weight-bold">{{ formatCurrency(receiptData.subtotal, receiptData.currency) }}</span>
+            </div>
+            <div class="d-flex justify-between py-1 text-body-2" v-if="receiptData.serviceCharge > 0">
+              <span>Overall Service Charge:</span>
+              <span class="font-weight-bold">{{ formatCurrency(receiptData.serviceCharge, receiptData.currency)
+              }}</span>
+            </div>
+            <!-- Always show tax even if it is 0 -->
+            <div class="d-flex justify-between py-1 text-body-2">
+              <span>Overall Tax:</span>
+              <span class="font-weight-bold">{{ formatCurrency(receiptData.tax, receiptData.currency) }}</span>
+            </div>
+            <div class="d-flex justify-between py-1 text-body-2" v-if="receiptData.discount > 0">
+              <span>Overall Global Discount:</span>
+              <span class="font-weight-bold">{{ formatCurrency(receiptData.discount, receiptData.currency) }}</span>
+            </div>
+            <div class="d-flex justify-between py-2 mt-2 border-t font-weight-black">
+              <span>Grand Total:</span>
+              <span>{{ formatCurrency(receiptData.total, receiptData.currency) }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script setup>
+import { ref, computed, inject, onBeforeUnmount, watch, onMounted } from 'vue'
+import { formatCurrency, fileToBase64, safeBtoa, safeAtob, saveBillToHistory } from '~/utils/helpers'
+
+
+const state = ref('landing') // 'landing' | 'camera' | 'processing' | 'splitting'
+const imagePreview = ref('')
+const fileInput = ref(null)
+const videoElement = ref(null)
+const canvasElement = ref(null)
+let streamInstance = null
+
+// Form State
+const receiptData = ref({
+  merchantName: '',
+  date: '',
+  currency: 'USD',
+  items: [],
+  tax: 0,
+  serviceCharge: 0,
+  discount: 0,
+  subtotal: 0,
+  total: 0
+})
+const selectedQuantities = ref({}) // idx -> quantity
+
+// Global injected values from app.vue
+const globalApiKey = inject('globalApiKey', ref(''))
+const showNotification = inject('showNotification', () => { })
+
+const hasApiKey = computed(() => {
+  return !!globalApiKey.value
+})
+
+// Usage Tracking (Max 3 receipts/day in production)
+const processedCountToday = ref(0)
+
+const isLimitExceeded = computed(() => {
+  if (import.meta.dev) return false
+  if (globalApiKey.value.length > 11) return false // Bypass limit if custom API Key is provided
+  return processedCountToday.value >= 3
+})
+
+const checkUsageLimit = () => {
+  if (process.client) {
+    const today = new Date().toISOString().split('T')[0]
+    const trackingStr = localStorage.getItem('usage_tracking')
+    if (trackingStr) {
+      const [date, countStr] = trackingStr.split('_')
+      if (date === today) {
+        processedCountToday.value = parseInt(countStr, 10) || 0
+        return
+      }
+    }
+    localStorage.setItem('usage_tracking', `${today}_0`)
+    processedCountToday.value = 0
+  }
+}
+
+const incrementUsageLimit = () => {
+  if (process.client) {
+    const today = new Date().toISOString().split('T')[0]
+    const newCount = processedCountToday.value + 1
+    processedCountToday.value = newCount
+    localStorage.setItem('usage_tracking', `${today}_${newCount}`)
+  }
+}
+
+onMounted(() => {
+  checkUsageLimit()
+})
+
+// Trigger Hidden File Upload
+const triggerFileInput = () => {
+  if (fileInput.value) {
+    fileInput.value.click()
+  }
+}
+
+// Handle Local File Selection
+const handleFileChange = async (event) => {
+  const file = event.target.files?.[0]
+  if (!file) return
+
+  try {
+    state.value = 'processing'
+    const base64Image = await fileToBase64(file)
+    imagePreview.value = base64Image
+    await processReceipt(base64Image)
+  } catch (err) {
+    showNotification('Error loading file: ' + err.message, true)
+    state.value = 'landing'
+  }
+}
+
+// In-app WebRTC Camera Controls
+const startCamera = async () => {
+  state.value = 'camera'
+  // Wait a tick for element rendering
+  await nextTick()
+  try {
+    streamInstance = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 } },
+      audio: false
+    })
+    if (videoElement.value) {
+      videoElement.value.srcObject = streamInstance
+    }
+  } catch (err) {
+    showNotification('Unable to access camera. Triggering local storage file select instead...', true)
+    state.value = 'landing'
+    // Fallback to triggering file upload directly
+    triggerFileInput()
+  }
+}
+
+const stopCamera = () => {
+  if (streamInstance) {
+    streamInstance.getTracks().forEach(track => track.stop())
+    streamInstance = null
+  }
+  if (videoElement.value) {
+    videoElement.value.srcObject = null
+  }
+  state.value = 'landing'
+}
+
+onBeforeUnmount(() => {
+  if (streamInstance) {
+    streamInstance.getTracks().forEach(track => track.stop())
+  }
+})
+
+// Capture snapshot from stream
+const captureFrame = () => {
+  if (!videoElement.value || !canvasElement.value) return
+
+  const video = videoElement.value
+  const canvas = canvasElement.value
+  const ctx = canvas.getContext('2d')
+
+  // Set canvas size to match video aspect ratio
+  canvas.width = video.videoWidth || 640
+  canvas.height = video.videoHeight || 480
+
+  ctx.drawImage(video, 0, 0, canvas.width, canvas.height)
+
+  const base64Data = canvas.toDataURL('image/jpeg', 0.9)
+  imagePreview.value = base64Data
+
+  // Stop camera streaming right away
+  stopCamera()
+  state.value = 'processing'
+
+  processReceipt(base64Data)
+}
+
+// Call API server route
+const processReceipt = async (base64Str) => {
+  try {
+    const response = await $fetch('/api/process-receipt', {
+      method: 'POST',
+      body: {
+        image: base64Str,
+        apiKey: globalApiKey.value
+      }
+    })
+
+    if (response.success && response.data) {
+      receiptData.value = response.data
+
+      // Initialize checklist quantities to 0
+      selectedQuantities.value = {}
+      for (let i = 0; i < response.data.items.length; i++) {
+        selectedQuantities.value[i] = 0
+      }
+
+      // Increment usage count tracking
+      incrementUsageLimit()
+
+      // Save to history
+      saveBillToHistory(response.data)
+
+      state.value = 'splitting'
+      showNotification('Nah, done. Saved in history')
+    } else {
+      throw new Error(response.error || 'Parsing error')
+    }
+  } catch (err) {
+    showNotification(err.message || 'Error processing receipt image', true)
+    state.value = 'landing'
+  }
+}
+
+
+const incrementQty = (idx, maxQty) => {
+  if (selectedQuantities.value[idx] < maxQty) {
+    selectedQuantities.value[idx] = Number((selectedQuantities.value[idx] + 1).toFixed(1))
+  }
+}
+
+const decrementQty = (idx) => {
+  if (selectedQuantities.value[idx] > 1) {
+    selectedQuantities.value[idx] = Number((selectedQuantities.value[idx] - 1).toFixed(1))
+  } else {
+    selectedQuantities.value[idx] = 0
+  }
+}
+
+// Reset calculations
+const resetSplits = () => {
+  for (const idx in selectedQuantities.value) {
+    selectedQuantities.value[idx] = 0
+  }
+  showNotification('Debt gone...')
+}
+
+// Reset bill state and clear query params
+const newBill = () => {
+  const router = useRouter()
+  router.replace({
+    query: {
+      ...route.query,
+      bill: undefined
+    }
+  })
+
+  state.value = 'landing'
+  receiptData.value = {
+    merchantName: '',
+    date: '',
+    currency: 'USD',
+    items: [],
+    tax: 0,
+    serviceCharge: 0,
+    discount: 0,
+    subtotal: 0,
+    total: 0
+  }
+  selectedQuantities.value = {}
+}
+
+// Calculations Computed Property (optimized in single-pass loop)
+const calcs = computed(() => {
+  const items = receiptData.value?.items || []
+  let myItemSubtotal = 0
+  let myIndividualDiscount = 0
+  let myIndividualTax = 0
+  let myIndividualServiceCharge = 0
+  let myGlobalDiscount = 0
+
+  let receiptItemSubtotal = 0
+  for (let i = 0; i < items.length; i++) {
+    receiptItemSubtotal += items[i].price * items[i].quantity
+  }
+
+  // Calculate user subtotal & individual discounts
+  const selectedItemBreakdown = []
+  for (let i = 0; i < items.length; i++) {
+    const item = items[i]
+    const selectedQty = selectedQuantities.value[i] || 0
+    if (selectedQty > 0) {
+      const itemCost = item.price * selectedQty
+      const itemDiscount = (item.discount || 0)
+      const itemTax = itemCost * (receiptData.value?.taxRate || 0)
+      const itemServiceCharge = itemCost * (receiptData.value?.serviceChargeRate || 0)
+      const itemGlobalDiscount = itemCost * (receiptData.value?.discountRate || 0)
+
+      myItemSubtotal += itemCost
+      myIndividualDiscount += itemDiscount
+      myIndividualTax += itemTax
+      myIndividualServiceCharge += itemServiceCharge
+      myGlobalDiscount += itemGlobalDiscount
+
+      selectedItemBreakdown.push({
+        name: item.name,
+        quantity: selectedQty,
+        price: item.price,
+        discount: itemDiscount,
+        globalDiscount: itemGlobalDiscount,
+        serviceCharge: itemServiceCharge,
+        totalPrice: itemCost + itemTax + itemServiceCharge - itemDiscount - itemGlobalDiscount
+      })
+    }
+  }
+
+  const tax = receiptData.value?.tax || 0
+  const serviceCharge = receiptData.value?.serviceCharge || 0
+  const myTax = tax
+  const myServiceCharge = serviceCharge
+  const myTotal = myItemSubtotal - myIndividualDiscount + myIndividualTax + myIndividualServiceCharge - myGlobalDiscount
+
+  return {
+    selectedSubtotal: myItemSubtotal,
+    myIndividualDiscount,
+    receiptItemSubtotal,
+    myTax,
+    myServiceCharge,
+    myGlobalDiscount,
+    myTotal,
+    selectedItemBreakdown
+  }
+})
+
+// Copy Split Summary text to clipboard
+// Share Split Summary and generate encoded join link
+const shareDebt = async () => {
+  const details = calcs.value
+  if (details.selectedItemBreakdown.length === 0) {
+    showNotification('Select at least one item first!', true)
+    return
+  }
+
+  const currency = receiptData.value.currency
+  const merchant = receiptData.value.merchantName || 'Restaurant'
+
+  // Generate the sharing URL with the base64-encoded JSON payload
+  let shareUrl = ''
+  try {
+    const payload = JSON.stringify(receiptData.value)
+    const encoded = safeBtoa(payload)
+    shareUrl = `${window.location.origin}${window.location.pathname}?bill=${encoded}`
+  } catch (err) {
+    showNotification('Failed to generate sharing URL.', err)
+  }
+
+  let text = `🔪 MY SHARE AT ${merchant.toUpperCase()}`
+  if (receiptData.value.date) {
+    text += ` (${receiptData.value.date})`
+  }
+  text += `\n===================================\n`
+  details.selectedItemBreakdown.forEach(item => {
+    text += `• ${item.name} (${item.quantity}x @ ${formatCurrency(item.price, currency)}): ${formatCurrency(item.totalPrice, currency)}\n`
+    if (item.discount > 0) {
+      text += `  Item Discount: -${formatCurrency(item.discount, currency)}\n`
+    }
+  })
+  text += `-----------------------------------\n`
+  text += `Subtotal:   ${formatCurrency(details.selectedSubtotal, currency)}\n`
+  if (details.myIndividualDiscount > 0) {
+    text += `Item Discounts: -${formatCurrency(details.myIndividualDiscount, currency)}\n`
+  }
+  if (details.myTax > 0) {
+    text += `Tax (${(receiptData.value.taxRate * 100).toFixed(1)}%): +${formatCurrency(details.myTax, currency)}\n`
+  }
+  if (receiptData.value.serviceCharge > 0) {
+    text += `Service Charge (${(receiptData.value.serviceChargeRate * 100).toFixed(1)}%): +${formatCurrency(details.myServiceCharge, currency)}\n`
+  }
+  if (receiptData.value.discount > 0) {
+    text += `Discount (${(receiptData.value.discountRate * 100).toFixed(1)}%): -${formatCurrency(details.myGlobalDiscount, currency)}\n`
+  }
+  text += `===================================\n`
+  text += `💰 TOTAL DUE: ${formatCurrency(details.myTotal, currency)}\n\n`
+
+  if (shareUrl) {
+    text += `Split your share here:\n${shareUrl}`
+  }
+
+  if (navigator.share) {
+    try {
+      await navigator.share({
+        title: `Bill at ${merchant}`,
+        text: text,
+        url: shareUrl
+      })
+    } catch (err) {
+      if (err.name !== 'AbortError') {
+        showNotification('Could not share. Try copying instead.', true)
+      }
+    }
+  } else {
+    try {
+      await navigator.clipboard.writeText(text)
+      showNotification('Summary and link copied to clipboard!')
+    } catch (err) {
+      showNotification('Failed to copy to clipboard', true)
+    }
+  }
+}
+
+// Share overall Bill and generate encoded join link
+const shareBill = async () => {
+  const currency = receiptData.value.currency
+  const merchant = receiptData.value.merchantName || 'Restaurant'
+
+  // Generate the sharing URL with the base64-encoded JSON payload
+  let shareUrl = ''
+  try {
+    const payload = JSON.stringify(receiptData.value)
+    const encoded = safeBtoa(payload)
+    shareUrl = `${window.location.origin}${window.location.pathname}?bill=${encoded}`
+  } catch (err) {
+    showNotification('Failed to generate sharing URL.', true)
+  }
+
+  let text = `🧾 BILL FROM ${merchant.toUpperCase()}`
+  if (receiptData.value.date) {
+    text += ` (${receiptData.value.date})`
+  }
+  text += `\n===================================\n`
+
+  receiptData.value.items.forEach(item => {
+    text += `• ${item.name} (${item.quantity}x @ ${formatCurrency(item.price, currency)})\n`
+    if (item.discount > 0) {
+      text += `  Discount: -${formatCurrency(item.discount, currency)}\n`
+    }
+  })
+
+  text += `-----------------------------------\n`
+  text += `Subtotal:       ${formatCurrency(receiptData.value.subtotal, currency)}\n`
+  if (receiptData.value.tax > 0) {
+    text += `Tax:            +${formatCurrency(receiptData.value.tax, currency)}\n`
+  }
+  if (receiptData.value.serviceCharge > 0) {
+    text += `Service Charge: +${formatCurrency(receiptData.value.serviceCharge, currency)}\n`
+  }
+  if (receiptData.value.discount > 0) {
+    text += `Discount:       -${formatCurrency(receiptData.value.discount, currency)}\n`
+  }
+  text += `===================================\n`
+  text += `💰 GRAND TOTAL: ${formatCurrency(receiptData.value.total, currency)}\n\n`
+
+  if (shareUrl) {
+    text += `Open this link to split your share:\n${shareUrl}`
+  }
+
+  if (navigator.share) {
+    try {
+      await navigator.share({
+        title: `Receipt at ${merchant}`,
+        text: text,
+        url: shareUrl
+      })
+    } catch (err) {
+      if (err.name !== 'AbortError') {
+        showNotification('Could not share. Try copying instead.', true)
+      }
+    }
+  } else {
+    try {
+      await navigator.clipboard.writeText(text)
+      showNotification('Bill summary and link copied to clipboard!')
+    } catch (err) {
+      showNotification('Failed to copy to clipboard', true)
+    }
+  }
+}
+
+// Load shared bill if ?bill=XXX parameter is present or changes
+const route = useRoute()
+watch(
+  () => route.query.bill,
+  (billParam) => {
+    if (billParam) {
+      try {
+        const decodedJson = safeAtob(billParam)
+        if (decodedJson) {
+          const data = JSON.parse(decodedJson)
+          if (data && data.items) {
+            receiptData.value = data
+            // Initialize checklist quantities to 0
+            selectedQuantities.value = {}
+            for (let i = 0; i < data.items.length; i++) {
+              selectedQuantities.value[i] = 0
+            }
+            state.value = 'splitting'
+            showNotification('Shared bill loaded!')
+          }
+        }
+      } catch (err) {
+        showNotification('Invalid shared bill link', true)
+      }
+    }
+  },
+  { immediate: true }
+)
+</script>
+
+<script>
+// Use standard Vue nextTick if needed
+import { nextTick } from 'vue'
+</script>
+
+<style scoped>
+.max-width-600 {
+  max-width: 600px;
+}
+
+.max-width-500 {
+  max-width: 500px;
+}
+
+/* Button grids */
+.buttons-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  width: 100%;
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+@media (max-width: 600px) {
+  .buttons-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.neo-large-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 24px;
+  cursor: pointer;
+  outline: none;
+}
+
+.neo-large-btn.teal {
+  background-color: var(--color-teal) !important;
+}
+
+.neo-large-btn.pink {
+  background-color: var(--color-pink) !important;
+  color: var(--color-white) !important;
+}
+
+.btn-title {
+  font-size: 1.5rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+
+.btn-subtitle {
+  font-size: 0.85rem;
+  font-weight: 700;
+  opacity: 0.8;
+  text-transform: uppercase;
+}
+
+/* Camera Live Styles */
+.video-container {
+  position: relative;
+  width: 100%;
+  max-height: 480px;
+  background-color: #000;
+  overflow: hidden;
+}
+
+.scanline {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 10px;
+  background: rgba(0, 245, 212, 0.4);
+  box-shadow: 0 0 10px 4px rgba(0, 245, 212, 0.6);
+  animation: scan 2.5s linear infinite;
+  pointer-events: none;
+}
+
+@keyframes scan {
+  0% {
+    top: 0%;
+  }
+
+  100% {
+    top: 100%;
+  }
+}
+
+/* Loading Scanner Styles */
+.loading-scanner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.image-wrap {
+  position: relative;
+  max-width: 250px;
+  overflow: hidden;
+}
+
+.image-wrap img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.scanner-bar {
+  position: absolute;
+  width: 100%;
+  height: 4px;
+  background-color: var(--color-pink);
+  box-shadow: 0 0 8px 2px var(--color-pink);
+  animation: scan-vertical 2s ease-in-out infinite alternate;
+}
+
+@keyframes scan-vertical {
+  0% {
+    top: 0%;
+  }
+
+  100% {
+    top: 100%;
+  }
+}
+
+.animate-pulse {
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.5;
+  }
+}
+
+/* Splitting Checklist Styles */
+.min-w-80 {
+  min-width: 80px;
+}
+
+.bg-navy-light {
+  background-color: #F8FAFC;
+}
+
+.text-pink-color {
+  color: var(--color-pink);
+}
+
+.text-teal-color {
+  color: #0E9080;
+  /* Darker teal for readability */
+}
+
+/* Quantity stepper */
+.stepper {
+  height: 40px;
+}
+
+.stepper-btn {
+  width: 48px;
+  height: 100%;
+  font-size: 1.8rem;
+  font-weight: 900;
+  border: none;
+  background: var(--color-gray);
+  color: var(--color-navy);
+  cursor: pointer;
+  transition: background-color 0.15s;
+}
+
+.stepper-btn:hover {
+  background-color: #E2E8F0;
+}
+
+.stepper-val {
+  padding: 0 12px;
+  font-weight: 800;
+  font-size: 1rem;
+}
+</style>

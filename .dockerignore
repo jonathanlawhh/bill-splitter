@@ -1,0 +1,12 @@
+.git
+.gitignore
+.nuxt
+.output
+node_modules
+npm-debug.log
+README.md
+Dockerfile
+.dockerignore
+cloudbuild.yaml
+.env
+.env.*

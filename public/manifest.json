@@ -1,0 +1,30 @@
+{
+  "name": "Bill Splitter",
+  "short_name": "Bill Splitter",
+  "description": "Everything also can share share, until it comes to money",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#fdc700",
+  "theme_color": "#f6339a",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/bill-split-favicon.svg",
+      "type": "image/svg+xml",
+      "sizes": "any",
+      "purpose": "any"
+    },
+    {
+      "src": "/bill-split-favicon.svg",
+      "type": "image/svg+xml",
+      "sizes": "192x192",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/bill-split-favicon.svg",
+      "type": "image/svg+xml",
+      "sizes": "512x512",
+      "purpose": "any"
+    }
+  ]
+}
