@@ -53,7 +53,7 @@
     <!-- WebRTC In-App Camera View -->
     <div v-else-if="state === 'camera'" class="camera-state neo-card p-6">
       <div class="d-flex justify-between align-center mb-4">
-        <h3 class="text-h5 font-weight-black">LIVE CAMERA SNAPSHOT</h3>
+        <h3 class="text-h5 font-weight-black">SNAPPY SNAPPY</h3>
         <v-btn class="neo-btn navy" @click="stopCamera">Cancel</v-btn>
       </div>
 
@@ -592,19 +592,6 @@ const shareDebt = async () => {
   const currency = receiptData.value.currency
   const merchant = receiptData.value.merchantName || 'Restaurant'
 
-  // Generate the sharing URL with the base64-encoded JSON payload
-  let shareUrl = ''
-  try {
-    const payload = JSON.stringify({
-      ...receiptData.value,
-      splitSettings: splitSettings.value
-    })
-    const encoded = safeBtoa(payload)
-    shareUrl = `${window.location.origin}${window.location.pathname}?bill=${encoded}`
-  } catch (err) {
-    showNotification('Failed to generate sharing URL.', err)
-  }
-
   let text = `🔪 MY SHARE AT ${merchant.toUpperCase()}`
   if (receiptData.value.date) {
     text += ` (${receiptData.value.date})`
@@ -637,16 +624,11 @@ const shareDebt = async () => {
   text += `===================================\n`
   text += `💰 TOTAL DUE: ${formatCurrency(details.myTotal, currency)}\n\n`
 
-  if (shareUrl) {
-    text += `Split your share here:\n${shareUrl}`
-  }
-
   if (navigator.share) {
     try {
       await navigator.share({
-        title: `Bill at ${merchant}`,
-        text: text,
-        url: shareUrl
+        title: `My debt at ${merchant}`,
+        text: text
       })
     } catch (err) {
       if (err.name !== 'AbortError') {
@@ -656,7 +638,7 @@ const shareDebt = async () => {
   } else {
     try {
       await navigator.clipboard.writeText(text)
-      showNotification('Summary and link copied to clipboard!')
+      showNotification('Summary copied to clipboard!')
     } catch (err) {
       showNotification('Failed to copy to clipboard', true)
     }
@@ -683,39 +665,13 @@ const shareBill = async () => {
 
   let text = `🧾 BILL FROM ${merchant.toUpperCase()}`
   if (receiptData.value.date) {
-    text += ` (${receiptData.value.date})`
-  }
-  text += `\n===================================\n`
-
-  receiptData.value.items.forEach(item => {
-    text += `• ${item.name} (${item.quantity}x @ ${formatCurrency(item.price, currency)})\n`
-    if (item.discount > 0) {
-      text += `  Discount: -${formatCurrency(item.discount, currency)}\n`
-    }
-  })
-
-  text += `-----------------------------------\n`
-  text += `Subtotal:       ${formatCurrency(receiptData.value.subtotal, currency)}\n`
-  if (receiptData.value.tax > 0) {
-    text += `Tax:            +${formatCurrency(receiptData.value.tax, currency)}\n`
-  }
-  if (receiptData.value.serviceCharge > 0) {
-    text += `Service Charge: +${formatCurrency(receiptData.value.serviceCharge, currency)}\n`
-  }
-  if (receiptData.value.discount > 0) {
-    text += `Discount:       -${formatCurrency(receiptData.value.discount, currency)}\n`
-  }
-  text += `===================================\n`
-  text += `💰 GRAND TOTAL: ${formatCurrency(receiptData.value.total, currency)}\n\n`
-
-  if (shareUrl) {
-    text += `Open this link to split your share:\n${shareUrl}`
+    text += ` (${receiptData.value.date})\n`
   }
 
   if (navigator.share) {
     try {
       await navigator.share({
-        title: `Receipt at ${merchant}`,
+        title: `Bill at ${merchant}`,
         text: text,
         url: shareUrl
       })
