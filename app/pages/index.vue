@@ -3,9 +3,9 @@
     <!-- Landing State -->
     <div v-if="state === 'landing'" class="landing-state d-flex flex-column align-center justify-center">
       <div class="text-center mb-10 max-width-600">
-        <h2 class="text-h3 font-weight-black mb-4">50/50, AA, GOING DUTCH </h2>
+        <h2 class="text-h3 font-weight-black mb-4">{{ $t('landing.headline') }}</h2>
         <p class="text-h6 font-weight-bold text-dark-gray">
-          Everything also can share share, until it comes to money
+          {{ $t('landing.tagline') }}
         </p>
       </div>
 
@@ -13,15 +13,15 @@
         <!-- Button 1: Upload Image -->
         <button class="neo-card neo-large-btn teal" @click="triggerFileInput" :disabled="isLimitExceeded">
           <v-icon size="64" class="mb-4">mdi-image-plus</v-icon>
-          <span class="btn-title">UPLOAD RECEIPT</span>
-          <span class="btn-subtitle">From Photo Library</span>
+          <span class="btn-title">{{ $t('landing.uploadReceipt') }}</span>
+          <span class="btn-subtitle">{{ $t('landing.fromLibrary') }}</span>
         </button>
 
         <!-- Button 2: Open Camera -->
         <button class="neo-card neo-large-btn pink" @click="startCamera" :disabled="isLimitExceeded">
           <v-icon size="64" class="mb-4">mdi-camera</v-icon>
-          <span class="btn-title">OPEN CAMERA</span>
-          <span class="btn-subtitle">Capture Receipt Live</span>
+          <span class="btn-title">{{ $t('landing.openCamera') }}</span>
+          <span class="btn-subtitle">{{ $t('landing.captureLive') }}</span>
         </button>
       </div>
 
@@ -30,8 +30,8 @@
         style="max-width: 600px; border-color: var(--color-pink) !important;">
         <v-icon color="#FF007F" size="32">mdi-alert-decagram</v-icon>
         <div class="ml-4">
-          <div class="font-weight-black text-pink-color">DAILY LIMIT REACHED</div>
-          <div class="text-caption">You have processed 3 receipts today. Please try again tomorrow!</div>
+          <div class="font-weight-black text-pink-color">{{ $t('landing.dailyLimitTitle') }}</div>
+          <div class="text-caption">{{ $t('landing.dailyLimitText') }}</div>
         </div>
       </div>
 
@@ -42,9 +42,9 @@
       <div v-if="!hasApiKey" class="neo-card p-4 mt-10 d-flex align-center gap-4">
         <v-icon color="#FF007F" size="32">mdi-alert-decagram</v-icon>
         <div class="ml-4">
-          <div class="font-weight-black">No Gemini API Key found</div>
+          <div class="font-weight-black">{{ $t('landing.noApiKeyTitle') }}</div>
           <div class="text-caption">
-            Provide your key in Settings (top-right) so the developer can afford his own milk-tea
+            {{ $t('landing.noApiKeyText') }}
           </div>
         </div>
       </div>
@@ -53,8 +53,8 @@
     <!-- WebRTC In-App Camera View -->
     <div v-else-if="state === 'camera'" class="camera-state neo-card p-6">
       <div class="d-flex justify-between align-center mb-4">
-        <h3 class="text-h5 font-weight-black">SNAPPY SNAPPY</h3>
-        <v-btn class="neo-btn navy" @click="stopCamera">Cancel</v-btn>
+        <h3 class="text-h5 font-weight-black">{{ $t('camera.title') }}</h3>
+        <v-btn class="neo-btn navy" @click="stopCamera">{{ $t('camera.cancel') }}</v-btn>
       </div>
 
       <div class="video-container neo-border mb-6">
@@ -64,7 +64,7 @@
 
       <div class="d-flex justify-center gap-4">
         <v-btn class="neo-btn teal px-8 py-4 text-h6" @click="captureFrame">
-          <v-icon class="mr-2">mdi-camera-iris</v-icon> Capture Photo
+          <v-icon class="mr-2">mdi-camera-iris</v-icon> {{ $t('camera.capture') }}
         </v-btn>
       </div>
       <canvas ref="canvasElement" class="d-none"></canvas>
@@ -81,8 +81,8 @@
           </div>
           <v-progress-linear color="#FF007F" indeterminate height="10" class="neo-border mt-6"></v-progress-linear>
         </div>
-        <h3 class="text-h4 font-weight-black mb-2 animate-pulse">PROCESSING...</h3>
-        <p class="font-weight-bold text-dark-gray">Ya it is not magic and needs time</p>
+        <h3 class="text-h4 font-weight-black mb-2 animate-pulse">{{ $t('processing.title') }}</h3>
+        <p class="font-weight-bold text-dark-gray">{{ $t('processing.subtitle') }}</p>
       </div>
     </div>
 
@@ -94,14 +94,14 @@
           <div class="neo-card p-6 bg-white height-100">
             <div class="d-flex justify-between align-center mb-6 border-b pb-4">
               <div>
-                <h3 class="text-h5 font-weight-black">{{ receiptData.merchantName || 'ITEMS ON RECEIPT' }}</h3>
+                <h3 class="text-h5 font-weight-black">{{ receiptData.merchantName || $t('splitting.defaultMerchant') }}</h3>
                 <p class="text-caption text-dark-gray mb-0">
                   <span v-if="receiptData.date" class="mr-2">📅 {{ receiptData.date }}</span>
                 </p>
               </div>
               <div>
                 <v-btn class="neo-btn pink" @click="newBill">
-                  <v-icon class="mr-1">mdi-arrow-left</v-icon> New Bill</v-btn>
+                  <v-icon class="mr-1">mdi-arrow-left</v-icon> {{ $t('splitting.newBill') }}</v-btn>
               </div>
 
             </div>
@@ -116,9 +116,9 @@
                   <div>
                     <div class="font-weight-black text-body-1">{{ item.name }}</div>
                     <div class="text-caption text-dark-gray">
-                      {{ formatCurrency(item.price, receiptData.currency) }} each × {{ item.quantity }}
+                      {{ formatCurrency(item.price, receiptData.currency) }} {{ $t('splitting.each') }} × {{ item.quantity }}
                       <span v-if="item.discount > 0" class="d-block text-pink-color font-weight-bold">
-                        Item Discount: -{{ formatCurrency(item.discount, receiptData.currency) }}
+                        {{ $t('splitting.itemDiscount') }} -{{ formatCurrency(item.discount, receiptData.currency) }}
                       </span>
                     </div>
                     <div class="neo-card d-flex align-center bg-white" style="width: 148px">
@@ -129,13 +129,13 @@
                     <div v-if="item.quantity === 1" class="mt-2 d-flex align-center gap-2 flex-wrap">
                       <label class="neo-checkbox-container">
                         <input type="checkbox" v-model="splitSettings[idx].enabled" class="neo-checkbox" />
-                        <span class="font-weight-bold text-caption ml-1">Split evenly</span>
+                        <span class="font-weight-bold text-caption ml-1">{{ $t('splitting.splitEvenly') }}</span>
                       </label>
                       <div v-if="splitSettings[idx].enabled" class="d-flex align-center gap-1">
-                        <span class="text-caption font-weight-bold ml-1">into</span>
+                        <span class="text-caption font-weight-bold ml-1">{{ $t('splitting.into') }}</span>
                         <input type="number" v-model.number="splitSettings[idx].parts" class="neo-parts-input ml-1"
                           @input="sanitizeParts(idx)" />
-                        <span class="text-caption font-weight-bold ml-1">parts</span>
+                        <span class="text-caption font-weight-bold ml-1">{{ $t('splitting.parts') }}</span>
                       </div>
                     </div>
                   </div>
@@ -156,71 +156,71 @@
 
         <div class="flex-grow-1 flex-basis-0 w-100">
           <div class="neo-card p-6 bg-primary mb-6">
-            <h3 class="text-h4 font-weight-black mb-6 text-center text-white">YOUR DEBT</h3>
+            <h3 class="text-h4 font-weight-black mb-6 text-center text-white">{{ $t('splitting.yourDebt') }}</h3>
 
             <div class="calc-table mb-6">
               <div class="d-flex justify-between py-2 border-b text-navy font-weight-bold">
-                <span>Item Subtotal: {{ formatCurrency(calcs.selectedSubtotal, receiptData.currency) }}</span>
+                <span>{{ $t('splitting.itemSubtotal') }} {{ formatCurrency(calcs.selectedSubtotal, receiptData.currency) }}</span>
               </div>
               <div v-if="calcs.myIndividualDiscount > 0" class="d-flex justify-between py-2 border-b">
-                <span>Item Discounts:</span>
+                <span>{{ $t('splitting.itemDiscounts') }}</span>
                 <span class="ml-1">- {{ formatCurrency(calcs.myIndividualDiscount, receiptData.currency) }}</span>
               </div>
               <!-- Always show Tax Share even if it is 0 -->
               <div class="d-flex justify-between py-2 border-b">
-                <span>Tax Share ({{ (receiptData.taxRate * 100).toFixed(1) }}%): </span>
+                <span>{{ $t('splitting.taxShare', { rate: (receiptData.taxRate * 100).toFixed(1) }) }}</span>
                 <span v-if="!receiptData.isTaxInItem">+ {{ formatCurrency(calcs.myIndividualTax, receiptData.currency)
                 }}</span>
-                <span class="ml-1" v-if="receiptData.isTaxInItem">Included in item</span>
+                <span class="ml-1" v-if="receiptData.isTaxInItem">{{ $t('splitting.taxIncluded') }}</span>
               </div>
               <div class="d-flex justify-between py-2 border-b" v-if="receiptData.serviceCharge > 0">
-                <span>Service Charge ({{ (receiptData.serviceChargeRate * 100).toFixed(1) }}%): + {{
+                <span>{{ $t('splitting.serviceCharge', { rate: (receiptData.serviceChargeRate * 100).toFixed(1) }) }} + {{
                   formatCurrency(calcs.myIndividualServiceCharge, receiptData.currency) }}</span>
               </div>
               <div class="d-flex justify-between py-2 border-b" v-if="receiptData.discount > 0">
-                <span>Global Discount Share ({{ (receiptData.discountRate * 100).toFixed(1) }}%): - {{
+                <span>{{ $t('splitting.globalDiscount', { rate: (receiptData.discountRate * 100).toFixed(1) }) }} - {{
                   formatCurrency(calcs.myGlobalDiscount, receiptData.currency) }}</span>
               </div>
               <div class="d-flex justify-between py-2 border-b align-center text-navy font-weight-black">
-                <span class="text-h5">Me owe : {{ formatCurrency(calcs.myTotal, receiptData.currency) }}</span>
+                <span class="text-h5">{{ $t('splitting.meOwe') }} {{ formatCurrency(calcs.myTotal, receiptData.currency) }}</span>
               </div>
             </div>
 
             <div class="d-flex flex-column gap-3">
               <v-btn class="neo-btn teal font-weight-black w-80" @click="shareDebt">
-                <v-icon class="mr-2">mdi-share</v-icon> Share My Debt
+                <v-icon class="mr-2">mdi-share</v-icon> {{ $t('splitting.shareMyDebt') }}
               </v-btn>
               <v-btn class="neo-btn font-weight-black w-80" @click="shareBill">
-                <v-icon class="mr-2">mdi-share-variant</v-icon> Share Bill
+                <v-icon class="mr-2">mdi-share-variant</v-icon> {{ $t('splitting.shareBill') }}
               </v-btn>
               <v-btn class="neo-btn w-80 py-4" @click="resetSplits">
-                <v-icon class="mr-2">mdi-restore</v-icon> Reset Selection
+                <v-icon class="mr-2">mdi-restore</v-icon> {{ $t('splitting.resetSelection') }}
               </v-btn>
             </div>
           </div>
 
           <div class="neo-card p-6 bg-white">
-            <h4 class="text-h6 font-weight-black mb-4">RECEIPT OVERALL</h4>
+            <h4 class="text-h6 font-weight-black mb-4">{{ $t('splitting.receiptOverall') }}</h4>
             <div class="d-flex justify-between py-1 text-body-2">
-              <span>Items Subtotal:</span>
+              <span>{{ $t('splitting.itemSubtotal') }}</span>
               <span class="font-weight-bold">{{ formatCurrency(receiptData.subtotal, receiptData.currency) }}</span>
             </div>
             <div class="d-flex justify-between py-1 text-body-2" v-if="receiptData.serviceCharge > 0">
-              <span>Overall Service Charge:</span>
+              <span>{{ $t('splitting.overallServiceCharge') }}</span>
               <span class="font-weight-bold">{{ formatCurrency(receiptData.serviceCharge, receiptData.currency)
                 }}</span>
             </div>
             <!-- Always show tax even if it is 0 -->
             <div class="d-flex justify-between py-1 text-body-2">
-              <span>Overall Tax:</span>
+              <span>{{ $t('splitting.overallTax') }}</span>
               <span class="font-weight-bold">{{ formatCurrency(receiptData.tax, receiptData.currency) }}</span>
             </div>
             <div class="d-flex justify-between py-1 text-body-2" v-if="receiptData.discount > 0">
-              <span>Overall Global Discount:</span>
+              <span>{{ $t('splitting.overallGlobalDiscount') }}</span>
               <span class="font-weight-bold">{{ formatCurrency(receiptData.discount, receiptData.currency) }}</span>
             </div>
             <div class="d-flex justify-between py-2 mt-2 border-t font-weight-black">
-              <span>Grand Total:</span>
+              <span>{{ $t('splitting.grandTotal') }}</span>
               <span>{{ formatCurrency(receiptData.total, receiptData.currency) }}</span>
             </div>
           </div>
@@ -233,6 +233,8 @@
 <script setup>
 import { ref, computed, inject, onBeforeUnmount, watch, onMounted } from 'vue'
 import { formatCurrency, fileToBase64, safeBtoa, safeAtob, saveBillToHistory } from '~/utils/helpers'
+
+const { t } = useI18n()
 
 
 const state = ref('landing') // 'landing' | 'camera' | 'processing' | 'splitting'
@@ -321,7 +323,7 @@ const handleFileChange = async (event) => {
     imagePreview.value = base64Image
     await processReceipt(base64Image)
   } catch (err) {
-    showNotification('Error loading file: ' + err.message, true)
+    showNotification(t('notifications.errorLoading', { error: err.message }), true)
     state.value = 'landing'
   }
 }
@@ -340,7 +342,7 @@ const startCamera = async () => {
       videoElement.value.srcObject = streamInstance
     }
   } catch (err) {
-    showNotification('Unable to access camera. Triggering local storage file select instead...', true)
+    showNotification(t('notifications.cameraAccessError'), true)
     state.value = 'landing'
     // Fallback to triggering file upload directly
     triggerFileInput()
@@ -417,12 +419,12 @@ const processReceipt = async (base64Str) => {
       saveBillToHistory(response.data)
 
       state.value = 'splitting'
-      showNotification('Nah, done. Saved in history')
+      showNotification(t('notifications.processingSuccess'))
     } else {
       throw new Error(response.error || 'Parsing error')
     }
   } catch (err) {
-    showNotification(err.message || 'Error processing receipt image', true)
+    showNotification(err.message || t('notifications.processingError'), true)
     state.value = 'landing'
   }
 }
@@ -451,7 +453,7 @@ const resetSplits = () => {
       splitSettings.value[idx].parts = 2
     }
   }
-  showNotification('Debt gone...')
+  showNotification(t('notifications.debtReset'))
 }
 
 // Reset bill state and clear query params
@@ -585,7 +587,7 @@ const calcs = computed(() => {
 const shareDebt = async () => {
   const details = calcs.value
   if (details.selectedItemBreakdown.length === 0) {
-    showNotification('Select at least one item first!', true)
+    showNotification(t('notifications.selectItemFirst'), true)
     return
   }
 
@@ -638,9 +640,9 @@ const shareDebt = async () => {
   } else {
     try {
       await navigator.clipboard.writeText(text)
-      showNotification('Summary copied to clipboard!')
+      showNotification(t('notifications.summaryCopied'))
     } catch (err) {
-      showNotification('Failed to copy to clipboard', true)
+      showNotification(t('notifications.failedCopyClipboard'), true)
     }
   }
 }
@@ -660,7 +662,7 @@ const shareBill = async () => {
     const encoded = safeBtoa(payload)
     shareUrl = `${window.location.origin}${window.location.pathname}?bill=${encoded}`
   } catch (err) {
-    showNotification('Failed to generate sharing URL.', true)
+    showNotification(t('notifications.failedGenerateShareUrl'), true)
   }
 
   let text = `🧾 BILL FROM ${merchant.toUpperCase()}`
@@ -683,9 +685,9 @@ const shareBill = async () => {
   } else {
     try {
       await navigator.clipboard.writeText(text)
-      showNotification('Bill summary and link copied to clipboard!')
+      showNotification(t('notifications.billCopied'))
     } catch (err) {
-      showNotification('Failed to copy to clipboard', true)
+      showNotification(t('notifications.failedCopyClipboard'), true)
     }
   }
 }
@@ -710,11 +712,11 @@ watch(
               splitSettings.value[i] = (data.splitSettings && data.splitSettings[i]) || { enabled: false, parts: 2 }
             }
             state.value = 'splitting'
-            showNotification('Shared bill loaded!')
+            showNotification(t('notifications.sharedBillLoaded'))
           }
         }
       } catch (err) {
-        showNotification('Invalid shared bill link', true)
+        showNotification(t('notifications.invalidSharedBill'), true)
       }
     }
   },

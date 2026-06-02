@@ -1,0 +1,103 @@
+{
+  "header": {
+    "title": "Bill Splitter",
+    "subtitle": "AA mou",
+    "settings": "Settings",
+    "history": "History",
+    "geminiApiKey": "Gemini API Key",
+    "apiKeyCaption": "This key will be saved locally in your browser and sent only to the server for processing.",
+    "saveSettings": "Save Settings"
+  },
+  "support": {
+    "supportTitle": "Support this application here",
+    "supportSubtitle1": "AI does not run on water and is putting me in debt",
+    "supportSubtitle2": "MYR 2 will process 50 bills",
+    "costTitle": "Development Cost Breakdown",
+    "costSubtitle1": "See the cost of making this app",
+    "costSubtitle2": "If it can guilt trip you into using it properly..."
+  },
+  "footer": {
+    "otherProjects": "Other Projects",
+    "github": "Github",
+    "blog": "Blog"
+  },
+  "landing": {
+    "headline": "50/50, AA, GOING DUTCH",
+    "tagline": "Everything also can share share, until it comes to money",
+    "uploadReceipt": "UPLOAD RECEIPT",
+    "fromLibrary": "From Photo Library",
+    "openCamera": "OPEN CAMERA",
+    "captureLive": "Capture Receipt Live",
+    "dailyLimitTitle": "DAILY LIMIT REACHED",
+    "dailyLimitText": "You have processed 3 receipts today. Please try again tomorrow!",
+    "noApiKeyTitle": "No Gemini API Key found",
+    "noApiKeyText": "Provide your key in Settings (top-right) so the developer can afford his own milk-tea"
+  },
+  "camera": {
+    "title": "SNAPPY SNAPPY",
+    "cancel": "Cancel",
+    "capture": "Capture Photo"
+  },
+  "processing": {
+    "title": "PROCESSING...",
+    "subtitle": "Ya it is not magic and needs time"
+  },
+  "splitting": {
+    "defaultMerchant": "ITEMS ON RECEIPT",
+    "newBill": "New Bill",
+    "each": "each",
+    "itemDiscount": "Item Discount:",
+    "splitEvenly": "Split evenly",
+    "into": "into",
+    "parts": "parts",
+    "yourDebt": "YOUR DEBT",
+    "itemSubtotal": "Item Subtotal:",
+    "itemDiscounts": "Item Discounts:",
+    "taxShare": "Tax Share ({rate}%):",
+    "taxIncluded": "Included in item",
+    "serviceCharge": "Service Charge ({rate}%):",
+    "globalDiscount": "Global Discount Share ({rate}%):",
+    "meOwe": "Me owe :",
+    "shareMyDebt": "Share My Debt",
+    "shareBill": "Share Bill",
+    "resetSelection": "Reset Selection",
+    "receiptOverall": "RECEIPT OVERALL",
+    "overallServiceCharge": "Overall Service Charge:",
+    "overallTax": "Overall Tax:",
+    "overallGlobalDiscount": "Overall Global Discount:",
+    "grandTotal": "Grand Total:"
+  },
+  "history": {
+    "back": "Back to Splitter",
+    "deleteAll": "Delete All History",
+    "confirmAllTitle": "ARE YOU ABSOLUTELY SURE?",
+    "confirmAllText": "This will wipe out all stored receipts in your history. No backups. No returns.",
+    "keepIt": "No, Keep It",
+    "yesDeleteAll": "Yes, Delete All",
+    "deleteSingleTitle": "Delete Bill?",
+    "deleteSingleText": "Are you sure you want to delete the bill for {merchant}?",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "emptyTitle": "NO HISTORY FOUND",
+    "emptyText": "You haven't scanned or parsed any receipts yet.",
+    "unknownMerchant": "UNKNOWN MERCHANT",
+    "unknownDate": "Unknown Date"
+  },
+  "notifications": {
+    "errorLoading": "Error loading file: {error}",
+    "cameraAccessError": "Unable to access camera. Triggering local storage file select instead...",
+    "processingSuccess": "Nah, done. Saved in history",
+    "processingError": "Error processing receipt image",
+    "debtReset": "Debt gone...",
+    "sharedBillLoaded": "Shared bill loaded!",
+    "invalidSharedBill": "Invalid shared bill link",
+    "selectItemFirst": "Select at least one item first!",
+    "failedGenerateShareUrl": "Failed to generate sharing URL.",
+    "summaryCopied": "Summary copied to clipboard!",
+    "failedCopyClipboard": "Failed to copy to clipboard",
+    "billCopied": "Bill summary and link copied to clipboard!",
+    "billRemoved": "Bill removed from history.",
+    "historyCleared": "All history deleted successfully.",
+    "settingsSaved": "Settings saved successfully!"
+  }
+}

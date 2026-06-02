@@ -9,7 +9,28 @@ export default defineNuxtConfig({
   },
 
   // Modules
-  modules: ['nuxt-gtag'],
+  modules: ['nuxt-gtag', '@nuxtjs/i18n'],
+
+  // i18n configuration
+  i18n: {
+    strategy: 'no_prefix',
+    defaultLocale: 'en',
+    lazy: true,
+    langDir: 'locales/',
+    locales: [
+      {
+        code: 'en',
+        language: 'en-US',
+        file: 'en.json'
+      },
+      {
+        code: 'zh',
+        language: 'zh-CN',
+        file: 'zh.json'
+      }
+    ],
+    vueI18n: './i18n.config.ts'
+  },
 
   // Google Analytics configuration
   gtag: {

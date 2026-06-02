@@ -6,12 +6,12 @@
       <div class="d-flex flex-column flex-sm-row justify-between align-center gap-4">
         <div>
           <v-btn class="neo-btn" to="/" id="back-home-btn">
-            <v-icon class="mr-2">mdi-arrow-left</v-icon> Back to Splitter
+            <v-icon class="mr-2">mdi-arrow-left</v-icon> {{ $t('history.back') }}
           </v-btn>
         </div>
         <div v-if="historyItems.length > 0">
           <v-btn class="neo-btn pink" @click="showConfirmDeleteAll = true" id="delete-all-btn">
-            <v-icon class="mr-2">mdi-delete-sweep</v-icon> Delete All History
+            <v-icon class="mr-2">mdi-delete-sweep</v-icon> {{ $t('history.deleteAll') }}
           </v-btn>
         </div>
       </div>
@@ -21,32 +21,30 @@
         <div class="d-flex align-center gap-4 mb-4">
           <v-icon color="#FF007F" size="40">mdi-alert-decagram</v-icon>
           <div>
-            <h2 class="text-h5 font-weight-black mb-1">ARE YOU ABSOLUTELY SURE?</h2>
+            <h2 class="text-h5 font-weight-black mb-1">{{ $t('history.confirmAllTitle') }}</h2>
             <p class="text-body-1 font-weight-bold text-dark-gray mb-0">
-              This will wipe out all stored receipts in your history. No backups. No returns.
+              {{ $t('history.confirmAllText') }}
             </p>
           </div>
         </div>
         <div class="d-flex justify-end gap-4">
-          <v-btn class="neo-btn navy" @click="showConfirmDeleteAll = false" id="cancel-delete-all-btn">No, Keep
-            It</v-btn>
-          <v-btn class="neo-btn pink" @click="confirmClearHistory" id="confirm-delete-all-btn">Yes, Delete All</v-btn>
+          <v-btn class="neo-btn navy" @click="showConfirmDeleteAll = false" id="cancel-delete-all-btn">{{ $t('history.keepIt') }}</v-btn>
+          <v-btn class="neo-btn pink" @click="confirmClearHistory" id="confirm-delete-all-btn">{{ $t('history.yesDeleteAll') }}</v-btn>
         </div>
       </div>
       <!-- Delete Confirmation Dialog -->
       <v-dialog v-model="showDeleteDialog" max-width="500px">
         <div class="neo-card p-6 bg-white border-pink" id="confirm-delete-single-dialog" style="margin: 0 !important;">
           <div class="d-flex justify-between align-center mb-4">
-            <h2 class="text-h5 font-weight-black">Delete Bill?</h2>
+            <h2 class="text-h5 font-weight-black">{{ $t('history.deleteSingleTitle') }}</h2>
           </div>
           <p class="text-body-1 font-weight-bold text-dark-gray mb-6">
-            Are you sure you want to delete the bill for <span class="text-navy font-weight-black">{{
-              itemToDelete?.merchantName }}</span>?
+            {{ $t('history.deleteSingleText', { merchant: itemToDelete?.merchantName }) }}
           </p>
           <div class="d-flex justify-end gap-3">
             <v-btn class="neo-btn navy px-6" @click="showDeleteDialog = false"
-              id="cancel-delete-single-btn">Cancel</v-btn>
-            <v-btn class="neo-btn pink px-6" @click="confirmDeleteSingle" id="confirm-delete-single-btn">Delete</v-btn>
+              id="cancel-delete-single-btn">{{ $t('history.cancel') }}</v-btn>
+            <v-btn class="neo-btn pink px-6" @click="confirmDeleteSingle" id="confirm-delete-single-btn">{{ $t('history.delete') }}</v-btn>
           </div>
         </div>
       </v-dialog>
@@ -56,9 +54,9 @@
         class="neo-card p-12 bg-white text-center d-flex flex-column align-center justify-center gap-6"
         id="empty-state">
         <div>
-          <h2 class="text-h4 font-weight-black mb-2">NO HISTORY FOUND</h2>
+          <h2 class="text-h4 font-weight-black mb-2">{{ $t('history.emptyTitle') }}</h2>
           <p class="text-h6 font-weight-bold text-dark-gray mb-0">
-            You haven't scanned or parsed any receipts yet.
+            {{ $t('history.emptyText') }}
           </p>
         </div>
       </div>
@@ -98,13 +96,15 @@
 </template>
 
 <script setup>
-import { ref, onMounted, inject } from 'vue'
+import { ref, onMounted, inject, computed } from 'vue'
 import { formatCurrency, safeAtob, getBillHistory, deleteBillFromHistory, clearBillHistory } from '~/utils/helpers'
 
+const { t } = useI18n()
+
 useHead({
-  title: 'Bill History | Bill Splitter',
+  title: computed(() => `${t('header.history')} | ${t('header.title')}`),
   meta: [
-    { name: 'description', content: 'View, reopen, or delete your previous split bills stored in local history.' }
+    { name: 'description', content: computed(() => t('history.emptyText')) }
   ]
 })
 
@@ -130,8 +130,8 @@ const loadHistory = () => {
         index,
         encoded,
         data,
-        merchantName: data.merchantName || 'UNKNOWN MERCHANT',
-        date: data.date || 'Unknown Date',
+        merchantName: data.merchantName || t('history.unknownMerchant'),
+        date: data.date || t('history.unknownDate'),
         total: data.total || 0,
         currency: data.currency || 'USD',
         itemsCount: data.items ? data.items.length : 0
@@ -156,7 +156,7 @@ const confirmDeleteSingle = () => {
   if (itemToDelete.value) {
     deleteBillFromHistory(itemToDelete.value.index)
     loadHistory()
-    showNotification('Bill removed from history.')
+    showNotification(t('notifications.billRemoved'))
   }
   showDeleteDialog.value = false
   itemToDelete.value = null
@@ -166,7 +166,7 @@ const confirmClearHistory = () => {
   clearBillHistory()
   historyItems.value = []
   showConfirmDeleteAll.value = false
-  showNotification('All history deleted successfully.')
+  showNotification(t('notifications.historyCleared'))
 }
 </script>
 

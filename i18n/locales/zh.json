@@ -1,0 +1,103 @@
+{
+  "header": {
+    "title": "账单平分器",
+    "subtitle": "AA 吗",
+    "settings": "设置",
+    "history": "历史记录",
+    "geminiApiKey": "Gemini API 密钥",
+    "apiKeyCaption": "此密钥将保存在您的本地浏览器中，且仅发送给服务器以进行处理。",
+    "saveSettings": "保存设置"
+  },
+  "support": {
+    "supportTitle": "在此支持此应用",
+    "supportSubtitle1": "AI 不靠水运行，而且这让我负债累累",
+    "supportSubtitle2": "2 马币可处理 50 张账单",
+    "costTitle": "开发成本明细",
+    "costSubtitle1": "查看制作此应用的成本",
+    "costSubtitle2": "希望这能让你感到愧疚从而正确使用它..."
+  },
+  "footer": {
+    "otherProjects": "其他项目",
+    "github": "Github",
+    "blog": "博客"
+  },
+  "landing": {
+    "headline": "五五开, AA制, 各付各的",
+    "tagline": "什么都可以共享，除了钱",
+    "uploadReceipt": "上传收据",
+    "fromLibrary": "从相册选择",
+    "openCamera": "打开相机",
+    "captureLive": "实时拍摄收据",
+    "dailyLimitTitle": "已达到每日限制",
+    "dailyLimitText": "您今天已处理了 3 张收据。请明天再试！",
+    "noApiKeyTitle": "未找到 Gemini API 密钥",
+    "noApiKeyText": "请在设置（右上角）中提供您的密钥，以便开发者能买得起奶茶"
+  },
+  "camera": {
+    "title": "拍张照片",
+    "cancel": "取消",
+    "capture": "拍摄照片"
+  },
+  "processing": {
+    "title": "处理中...",
+    "subtitle": "是的，这并不是魔法，需要一些时间"
+  },
+  "splitting": {
+    "defaultMerchant": "收据上的商品",
+    "newBill": "新账单",
+    "each": "每个",
+    "itemDiscount": "单品折扣：",
+    "splitEvenly": "平均平分",
+    "into": "分成",
+    "parts": "份",
+    "yourDebt": "您的应付金额",
+    "itemSubtotal": "商品小计：",
+    "itemDiscounts": "商品折扣：",
+    "taxShare": "税额分摊 ({rate}%): ",
+    "taxIncluded": "已包含在商品中",
+    "serviceCharge": "服务费分摊 ({rate}%): ",
+    "globalDiscount": "全局折扣分摊 ({rate}%): ",
+    "meOwe": "我欠：",
+    "shareMyDebt": "分享我的债务",
+    "shareBill": "分享整张账单",
+    "resetSelection": "重置选择",
+    "receiptOverall": "账单总计",
+    "overallServiceCharge": "总服务费：",
+    "overallTax": "总税额：",
+    "overallGlobalDiscount": "总全局折扣：",
+    "grandTotal": "总计："
+  },
+  "history": {
+    "back": "返回平分器",
+    "deleteAll": "删除所有历史",
+    "confirmAllTitle": "您确定要这么做吗？",
+    "confirmAllText": "这将清除您历史记录中所有存储的收据。无法备份，无法恢复。",
+    "keepIt": "不，保留",
+    "yesDeleteAll": "是的，全部删除",
+    "deleteSingleTitle": "删除账单？",
+    "deleteSingleText": "您确定要删除 {merchant} 的账单吗？",
+    "cancel": "取消",
+    "delete": "删除",
+    "emptyTitle": "未找到历史记录",
+    "emptyText": "您尚未扫描或解析过任何收据。",
+    "unknownMerchant": "未知商家",
+    "unknownDate": "未知日期"
+  },
+  "notifications": {
+    "errorLoading": "加载文件出错：{error}",
+    "cameraAccessError": "无法访问相机。改为触发本地存储文件选择...",
+    "processingSuccess": "搞定。已保存至历史记录",
+    "processingError": "处理收据图片出错",
+    "debtReset": "应付金额已清零...",
+    "sharedBillLoaded": "已加载分享的账单！",
+    "invalidSharedBill": "无效的分享账单链接",
+    "selectItemFirst": "请先选择至少一项！",
+    "failedGenerateShareUrl": "生成分享链接失败。",
+    "summaryCopied": "摘要已复制到剪贴板！",
+    "failedCopyClipboard": "复制到剪贴板失败",
+    "billCopied": "账单摘要和链接已复制到剪贴板！",
+    "billRemoved": "账单已从历史记录中移除。",
+    "historyCleared": "所有历史记录已成功删除。",
+    "settingsSaved": "设置保存成功！"
+  }
+}
