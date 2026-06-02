@@ -94,7 +94,8 @@
           <div class="neo-card p-6 bg-white height-100">
             <div class="d-flex justify-between align-center mb-6 border-b pb-4">
               <div>
-                <h3 class="text-h5 font-weight-black">{{ receiptData.merchantName || $t('splitting.defaultMerchant') }}</h3>
+                <h3 class="text-h5 font-weight-black">{{ receiptData.merchantName || $t('splitting.defaultMerchant') }}
+                </h3>
                 <p class="text-caption text-dark-gray mb-0">
                   <span v-if="receiptData.date" class="mr-2">📅 {{ receiptData.date }}</span>
                 </p>
@@ -116,9 +117,10 @@
                   <div>
                     <div class="font-weight-black text-body-1">{{ item.name }}</div>
                     <div class="text-caption text-dark-gray">
-                      {{ formatCurrency(item.price, receiptData.currency) }} {{ $t('splitting.each') }} × {{ item.quantity }}
+                      {{ formatCurrency(item.price, receiptData.currency) }} {{ $t('splitting.each') }} × {{
+                        item.quantity }}
                       <span v-if="item.discount > 0" class="d-block text-pink-color font-weight-bold">
-                        {{ $t('splitting.itemDiscount') }} -{{ formatCurrency(item.discount, receiptData.currency) }}
+                        {{ $t('splitting.itemDiscount') }}: -{{ formatCurrency(item.discount, receiptData.currency) }}
                       </span>
                     </div>
                     <div class="neo-card d-flex align-center bg-white" style="width: 148px">
@@ -160,29 +162,34 @@
 
             <div class="calc-table mb-6">
               <div class="d-flex justify-between py-2 border-b text-navy font-weight-bold">
-                <span>{{ $t('splitting.itemSubtotal') }} {{ formatCurrency(calcs.selectedSubtotal, receiptData.currency) }}</span>
+                <span>{{ $t('splitting.itemSubtotal') }}: {{ formatCurrency(calcs.selectedSubtotal,
+                  receiptData.currency)
+                }}</span>
               </div>
               <div v-if="calcs.myIndividualDiscount > 0" class="d-flex justify-between py-2 border-b">
-                <span>{{ $t('splitting.itemDiscounts') }}</span>
+                <span>{{ $t('splitting.itemDiscounts') }}:</span>
                 <span class="ml-1">- {{ formatCurrency(calcs.myIndividualDiscount, receiptData.currency) }}</span>
               </div>
               <!-- Always show Tax Share even if it is 0 -->
               <div class="d-flex justify-between py-2 border-b">
-                <span>{{ $t('splitting.taxShare', { rate: (receiptData.taxRate * 100).toFixed(1) }) }}</span>
+                <span>{{ $t('splitting.taxShare', { rate: (receiptData.taxRate * 100).toFixed(1) }) }}: </span>
                 <span v-if="!receiptData.isTaxInItem">+ {{ formatCurrency(calcs.myIndividualTax, receiptData.currency)
-                }}</span>
+                  }}</span>
                 <span class="ml-1" v-if="receiptData.isTaxInItem">{{ $t('splitting.taxIncluded') }}</span>
               </div>
               <div class="d-flex justify-between py-2 border-b" v-if="receiptData.serviceCharge > 0">
-                <span>{{ $t('splitting.serviceCharge', { rate: (receiptData.serviceChargeRate * 100).toFixed(1) }) }} + {{
-                  formatCurrency(calcs.myIndividualServiceCharge, receiptData.currency) }}</span>
+                <span>{{ $t('splitting.serviceCharge', { rate: (receiptData.serviceChargeRate * 100).toFixed(1) }) }}: +
+                  {{
+                    formatCurrency(calcs.myIndividualServiceCharge, receiptData.currency) }}</span>
               </div>
               <div class="d-flex justify-between py-2 border-b" v-if="receiptData.discount > 0">
-                <span>{{ $t('splitting.globalDiscount', { rate: (receiptData.discountRate * 100).toFixed(1) }) }} - {{
+                <span>{{ $t('splitting.globalDiscount', { rate: (receiptData.discountRate * 100).toFixed(1) }) }}: - {{
                   formatCurrency(calcs.myGlobalDiscount, receiptData.currency) }}</span>
               </div>
               <div class="d-flex justify-between py-2 border-b align-center text-navy font-weight-black">
-                <span class="text-h5">{{ $t('splitting.meOwe') }} {{ formatCurrency(calcs.myTotal, receiptData.currency) }}</span>
+                <span class="text-h5">{{ $t('splitting.meOwe') }} : {{ formatCurrency(calcs.myTotal,
+                  receiptData.currency)
+                }}</span>
               </div>
             </div>
 
@@ -200,27 +207,27 @@
           </div>
 
           <div class="neo-card p-6 bg-white">
-            <h4 class="text-h6 font-weight-black mb-4">{{ $t('splitting.receiptOverall') }}</h4>
+            <h4 class="text-h6 font-weight-black mb-4">{{ $t('splitting.receiptOverall') }}:</h4>
             <div class="d-flex justify-between py-1 text-body-2">
-              <span>{{ $t('splitting.itemSubtotal') }}</span>
+              <span>{{ $t('splitting.itemSubtotal') }}:</span>
               <span class="font-weight-bold">{{ formatCurrency(receiptData.subtotal, receiptData.currency) }}</span>
             </div>
             <div class="d-flex justify-between py-1 text-body-2" v-if="receiptData.serviceCharge > 0">
-              <span>{{ $t('splitting.overallServiceCharge') }}</span>
+              <span>{{ $t('splitting.overallServiceCharge') }}:</span>
               <span class="font-weight-bold">{{ formatCurrency(receiptData.serviceCharge, receiptData.currency)
-                }}</span>
+              }}</span>
             </div>
             <!-- Always show tax even if it is 0 -->
             <div class="d-flex justify-between py-1 text-body-2">
-              <span>{{ $t('splitting.overallTax') }}</span>
+              <span>{{ $t('splitting.overallTax') }}:</span>
               <span class="font-weight-bold">{{ formatCurrency(receiptData.tax, receiptData.currency) }}</span>
             </div>
             <div class="d-flex justify-between py-1 text-body-2" v-if="receiptData.discount > 0">
-              <span>{{ $t('splitting.overallGlobalDiscount') }}</span>
+              <span>{{ $t('splitting.overallGlobalDiscount') }}:</span>
               <span class="font-weight-bold">{{ formatCurrency(receiptData.discount, receiptData.currency) }}</span>
             </div>
             <div class="d-flex justify-between py-2 mt-2 border-t font-weight-black">
-              <span>{{ $t('splitting.grandTotal') }}</span>
+              <span>{{ $t('splitting.grandTotal') }}:</span>
               <span>{{ formatCurrency(receiptData.total, receiptData.currency) }}</span>
             </div>
           </div>
@@ -594,11 +601,11 @@ const shareDebt = async () => {
   const currency = receiptData.value.currency
   const merchant = receiptData.value.merchantName || 'Restaurant'
 
-  let text = `🔪 MY SHARE AT ${merchant.toUpperCase()}`
+  let text = `🔪 ME AT ${merchant.toUpperCase()}`
   if (receiptData.value.date) {
     text += ` (${receiptData.value.date})`
   }
-  text += `\n===================================\n`
+  text += `\n=============================\n`
   details.selectedItemBreakdown.forEach(item => {
     if (item.isSplit) {
       text += `• ${item.name} (Split 1/${item.parts} @ ${formatCurrency(item.price, currency)}): ${formatCurrency(item.totalPrice, currency)}\n`
@@ -606,25 +613,25 @@ const shareDebt = async () => {
       text += `• ${item.name} (${item.quantity}x @ ${formatCurrency(item.price, currency)}): ${formatCurrency(item.totalPrice, currency)}\n`
     }
     if (item.discount > 0) {
-      text += `  Item Discount: -${formatCurrency(item.discount, currency)}\n`
+      text += `  ${t('splitting.itemDiscount')}: -${formatCurrency(item.discount, currency)}\n`
     }
   })
   text += `-----------------------------------\n`
-  text += `Subtotal:   ${formatCurrency(details.selectedSubtotal, currency)}\n`
+  text += `${t('splitting.itemSubtotal')}: ${formatCurrency(details.selectedSubtotal, currency)}\n`
   if (details.myIndividualDiscount > 0) {
-    text += `Item Discounts: -${formatCurrency(details.myIndividualDiscount, currency)}\n`
+    text += `${t('splitting.itemDiscounts')}: -${formatCurrency(details.myIndividualDiscount, currency)}\n`
   }
   if (details.myIndividualTax > 0) {
-    text += `Tax (${(receiptData.value.taxRate * 100).toFixed(1)}%): +${formatCurrency(details.myIndividualTax, currency)}\n`
+    text += `${t('splitting.taxShare', { rate: (receiptData.value.taxRate * 100).toFixed(1) })}: +${formatCurrency(details.myIndividualTax, currency)}\n`
   }
   if (details.myIndividualServiceCharge > 0) {
-    text += `Service Charge (${(receiptData.value.serviceChargeRate * 100).toFixed(1)}%): +${formatCurrency(details.myIndividualServiceCharge, currency)}\n`
+    text += `${t('splitting.serviceCharge', { rate: (receiptData.value.serviceChargeRate * 100).toFixed(1) })}: +${formatCurrency(details.myIndividualServiceCharge, currency)}\n`
   }
   if (details.myGlobalDiscount > 0) {
-    text += `Discount (${(receiptData.value.discountRate * 100).toFixed(1)}%): -${formatCurrency(details.myGlobalDiscount, currency)}\n`
+    text += `${t('splitting.globalDiscount', { rate: (receiptData.value.discountRate * 100).toFixed(1) })}: -${formatCurrency(details.myGlobalDiscount, currency)}\n`
   }
   text += `===================================\n`
-  text += `💰 TOTAL DUE: ${formatCurrency(details.myTotal, currency)}\n\n`
+  text += `💰 ${t('splitting.meOwe')}: ${formatCurrency(details.myTotal, currency)}\n\n`
 
   if (navigator.share) {
     try {
@@ -665,7 +672,7 @@ const shareBill = async () => {
     showNotification(t('notifications.failedGenerateShareUrl'), true)
   }
 
-  let text = `🧾 BILL FROM ${merchant.toUpperCase()}`
+  let text = `🧾 BILL FROM ${merchant.toUpperCase()}\n`
   if (receiptData.value.date) {
     text += ` (${receiptData.value.date})\n`
   }
@@ -712,7 +719,6 @@ watch(
               splitSettings.value[i] = (data.splitSettings && data.splitSettings[i]) || { enabled: false, parts: 2 }
             }
             state.value = 'splitting'
-            showNotification(t('notifications.sharedBillLoaded'))
           }
         }
       } catch (err) {
