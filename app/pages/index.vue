@@ -36,7 +36,8 @@
       </div>
 
       <!-- Hidden inputs for file trigger and mobile camera capture fallback -->
-      <input ref="fileInput" type="file" accept="image/*" class="d-none" @change="handleFileChange" />
+      <input ref="fileInput" type="file" accept=".jpg,.jpeg,.png,.bmp,image/jpeg,image/png,image/bmp" class="d-none"
+        @change="handleFileChange" />
 
       <!-- Settings warning if API Key not found -->
       <div v-if="!hasApiKey" class="neo-card p-4 mt-10 d-flex align-center gap-4">
@@ -164,7 +165,7 @@
               <div class="d-flex justify-between py-2 border-b text-navy font-weight-bold">
                 <span>{{ $t('splitting.itemSubtotal') }}: {{ formatCurrency(calcs.selectedSubtotal,
                   receiptData.currency)
-                }}</span>
+                  }}</span>
               </div>
               <div v-if="calcs.myIndividualDiscount > 0" class="d-flex justify-between py-2 border-b">
                 <span>{{ $t('splitting.itemDiscounts') }}:</span>
@@ -174,7 +175,7 @@
               <div class="d-flex justify-between py-2 border-b">
                 <span>{{ $t('splitting.taxShare', { rate: (receiptData.taxRate * 100).toFixed(1) }) }}: </span>
                 <span v-if="!receiptData.isTaxInItem">+ {{ formatCurrency(calcs.myIndividualTax, receiptData.currency)
-                  }}</span>
+                }}</span>
                 <span class="ml-1" v-if="receiptData.isTaxInItem">{{ $t('splitting.taxIncluded') }}</span>
               </div>
               <div class="d-flex justify-between py-2 border-b" v-if="receiptData.serviceCharge > 0">
@@ -189,7 +190,7 @@
               <div class="d-flex justify-between py-2 border-b align-center text-navy font-weight-black">
                 <span class="text-h5">{{ $t('splitting.meOwe') }} : {{ formatCurrency(calcs.myTotal,
                   receiptData.currency)
-                }}</span>
+                  }}</span>
               </div>
             </div>
 
@@ -215,7 +216,7 @@
             <div class="d-flex justify-between py-1 text-body-2" v-if="receiptData.serviceCharge > 0">
               <span>{{ $t('splitting.overallServiceCharge') }}:</span>
               <span class="font-weight-bold">{{ formatCurrency(receiptData.serviceCharge, receiptData.currency)
-              }}</span>
+                }}</span>
             </div>
             <!-- Always show tax even if it is 0 -->
             <div class="d-flex justify-between py-1 text-body-2">
@@ -431,7 +432,13 @@ const processReceipt = async (base64Str) => {
       throw new Error(response.error || 'Parsing error')
     }
   } catch (err) {
-    showNotification(err.message || t('notifications.processingError'), true)
+    if (err.message === 'NOT_A_RECEIPT') {
+      incrementUsageLimit()
+    }
+    const errMsg = err.message === 'NOT_A_RECEIPT'
+      ? t('notifications.notAReceipt')
+      : (err.message || t('notifications.processingError'))
+    showNotification(errMsg, true)
     state.value = 'landing'
   }
 }

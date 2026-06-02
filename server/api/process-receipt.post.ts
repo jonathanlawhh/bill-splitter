@@ -53,13 +53,14 @@ export default defineEventHandler(async (event) => {
             data
           }
         },
-        "Extract data from this receipt. If an item name has no English description, append the translation behind in brackets. Be precise with prices and quantities. Identify the merchant/shop name and the date of the receipt if visible. Important: If a discount applies only to a specific item, record it in that item's 'discount' field. The global 'discount' field should only be used for discounts that apply to the entire bill (e.g., total bill discount, payment method promo). Return a clean JSON object according to the schema."
+        "Extract data from this receipt. First, check if image is a valid receipt. If image is not receipt, set 'isReceipt' to false, otherwise true. If an item name has no English description, append the translation behind in brackets. Be precise with prices and quantities. Identify the merchant/shop name and the date of the receipt if visible. Important: If a discount applies only to a specific item, record it in that item's 'discount' field. The global 'discount' field should only be used for discounts that apply to the entire bill (e.g., total bill discount, payment method promo). Return a clean JSON object according to the schema."
       ],
       config: {
         responseMimeType: 'application/json',
         responseJsonSchema: {
           type: Type.OBJECT,
           properties: {
+            isReceipt: { type: Type.BOOLEAN, description: 'True if the image is a valid receipt, invoice, bill, or transactional statement. False if the image is not a receipt (e.g., random objects, scenery, unrelated text).' },
             merchantName: { type: Type.STRING, description: 'The name of the shop/restaurant, or null if not found' },
             date: { type: Type.STRING, description: 'The date of the receipt in YYYY-MM-DD, or null if not found' },
             currency: { type: Type.STRING, description: 'Currency symbol or code (e.g., $, USD, £)' },
@@ -83,7 +84,7 @@ export default defineEventHandler(async (event) => {
             subtotal: { type: Type.NUMBER, description: 'Subtotal before tax/discount/service charge' },
             total: { type: Type.NUMBER, description: 'Total amount on the receipt' }
           },
-          required: ['merchantName', 'date', 'currency', 'items', 'tax', 'serviceCharge', 'discount', 'subtotal', 'total', 'isTaxInItem']
+          required: ['isReceipt', 'merchantName', 'date', 'currency', 'items', 'tax', 'serviceCharge', 'discount', 'subtotal', 'total', 'isTaxInItem']
         }
       }
     })
@@ -93,6 +94,13 @@ export default defineEventHandler(async (event) => {
     }
 
     const parsedData = JSON.parse(response.text)
+
+    if (!parsedData || parsedData.isReceipt === false || !parsedData.items || parsedData.items.length === 0) {
+      return {
+        success: false,
+        error: 'NOT_A_RECEIPT'
+      }
+    }
 
     // Manual calculations, because I do not trust the AI with calculations
     parsedData["date"] = parsedData["date"] ? parsedData["date"] : new Date().toISOString().split('T')[0];

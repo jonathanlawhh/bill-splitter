@@ -88,6 +88,7 @@
     "cameraAccessError": "Unable to access camera. Triggering local storage file select instead...",
     "processingSuccess": "Nah, done. Saved in history",
     "processingError": "Error processing receipt image",
+    "notAReceipt": "Tmd upload a receipt la",
     "debtReset": "Debt gone...",
     "invalidSharedBill": "Invalid shared bill link",
     "selectItemFirst": "Select at least one item first!",

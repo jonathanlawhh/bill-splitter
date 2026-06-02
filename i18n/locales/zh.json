@@ -88,6 +88,7 @@
     "cameraAccessError": "无法访问相机。改为触发本地存储文件选择...",
     "processingSuccess": "搞定。已保存至历史记录",
     "processingError": "处理收据图片出错",
+    "notAReceipt": "我操, 这不是收据, 你TM在逗我?",
     "debtReset": "应付金额已清零...",
     "invalidSharedBill": "无效的分享账单链接",
     "selectItemFirst": "请先选择至少一项！",
