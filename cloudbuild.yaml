@@ -1,0 +1,59 @@
+steps:
+  # Build the container image
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'build'
+      - '-t'
+      - '$_AR_HOSTNAME/$PROJECT_ID/$_AR_REPOSITORY/$_SERVICE_NAME:$COMMIT_SHA'
+      - '.'
+    id: 'Build'
+  # Push the container image to Artifact Registry
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'push'
+      - '$_AR_HOSTNAME/$PROJECT_ID/$_AR_REPOSITORY/$_SERVICE_NAME:$COMMIT_SHA'
+    id: 'Push'
+  # Deploy container image to Google Cloud Run
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: gcloud
+    args:
+      - 'run'
+      - 'deploy'
+      - '$_SERVICE_NAME'
+      - '--image'
+      - '$_AR_HOSTNAME/$PROJECT_ID/$_AR_REPOSITORY/$_SERVICE_NAME:$COMMIT_SHA'
+      - '--region'
+      - '$_DEPLOY_REGION'
+      - '--platform'
+      - 'managed'
+      - '--allow-unauthenticated'
+      - '--cpu'
+      - '$_CPU'
+      - '--memory'
+      - '$_MEMORY'
+      - '--min-instances'
+      - '$_MIN_INSTANCES'
+      - '--max-instances'
+      - '$_MAX_INSTANCES'
+      - '--concurrency'
+      - '$_CONCURRENCY'
+      - '--set-env-vars'
+      - 'GEMINI_API_KEY=$_GEMINI_API_KEY,GEMINI_MODEL=$_GEMINI_MODEL,NUXT_PUBLIC_GTAG_ID=$_NUXT_PUBLIC_GTAG_ID'
+    id: 'Deploy'
+images:
+  - '$_AR_HOSTNAME/$PROJECT_ID/$_AR_REPOSITORY/$_SERVICE_NAME:$COMMIT_SHA'
+substitutions:
+  _AR_HOSTNAME: 'asia-southeast1-docker.pkg.dev'
+  _AR_REPOSITORY: 'cloud-run-source-deploy'
+  _SERVICE_NAME: 'bill-splitter'
+  _DEPLOY_REGION: 'asia-southeast1'
+  _CPU: '0.5'
+  _MEMORY: '128Mi'
+  _MIN_INSTANCES: '0'
+  _MAX_INSTANCES: '1'
+  _CONCURRENCY: '1'
+  _GEMINI_API_KEY: 'your-gemini-api-key'
+  _GEMINI_MODEL: 'gemini-3.1-flash-lite'
+  _NUXT_PUBLIC_GTAG_ID: 'G-BILLSPLIT123'
+options:
+  logging: CLOUD_LOGGING_ONLY
