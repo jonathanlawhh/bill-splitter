@@ -28,8 +28,10 @@
           </div>
         </div>
         <div class="d-flex justify-end gap-4">
-          <v-btn class="neo-btn navy" @click="showConfirmDeleteAll = false" id="cancel-delete-all-btn">{{ $t('history.keepIt') }}</v-btn>
-          <v-btn class="neo-btn pink" @click="confirmClearHistory" id="confirm-delete-all-btn">{{ $t('history.yesDeleteAll') }}</v-btn>
+          <v-btn class="neo-btn navy" @click="showConfirmDeleteAll = false" id="cancel-delete-all-btn">{{
+            $t('history.keepIt') }}</v-btn>
+          <v-btn class="neo-btn pink" @click="confirmClearHistory" id="confirm-delete-all-btn">{{
+            $t('history.yesDeleteAll') }}</v-btn>
         </div>
       </div>
       <!-- Delete Confirmation Dialog -->
@@ -42,9 +44,10 @@
             {{ $t('history.deleteSingleText', { merchant: itemToDelete?.merchantName }) }}
           </p>
           <div class="d-flex justify-end gap-3">
-            <v-btn class="neo-btn navy px-6" @click="showDeleteDialog = false"
-              id="cancel-delete-single-btn">{{ $t('history.cancel') }}</v-btn>
-            <v-btn class="neo-btn pink px-6" @click="confirmDeleteSingle" id="confirm-delete-single-btn">{{ $t('history.delete') }}</v-btn>
+            <v-btn class="neo-btn navy px-6" @click="showDeleteDialog = false" id="cancel-delete-single-btn">{{
+              $t('history.cancel') }}</v-btn>
+            <v-btn class="neo-btn pink px-6" @click="confirmDeleteSingle" id="confirm-delete-single-btn">{{
+              $t('history.delete') }}</v-btn>
           </div>
         </div>
       </v-dialog>
@@ -54,7 +57,7 @@
         class="neo-card p-12 bg-white text-center d-flex flex-column align-center justify-center gap-6"
         id="empty-state">
         <div>
-          <h2 class="text-h4 font-weight-black mb-2">{{ $t('history.emptyTitle') }}</h2>
+          <h2 class="text-h4 font-weight-black mb-2">{{ $t('header.history_description') }}</h2>
           <p class="text-h6 font-weight-bold text-dark-gray mb-0">
             {{ $t('history.emptyText') }}
           </p>
@@ -102,9 +105,15 @@ import { formatCurrency, safeAtob, getBillHistory, deleteBillFromHistory, clearB
 const { t } = useI18n()
 
 useHead({
-  title: computed(() => `${t('header.history')} | ${t('header.title')}`),
+  title: computed(() => `${t('header.title')} | ${t('header.history')}`),
   meta: [
-    { name: 'description', content: computed(() => t('history.emptyText')) }
+    { name: 'description', content: computed(() => t('header.history_description')) },
+    // OpenGraph / Facebook
+    { property: 'og:title', content: computed(() => `${t('header.title')} | ${t('header.history')}`) },
+    { property: 'og:description', content: computed(() => t('header.history_description')) },
+    // Twitter Card
+    { name: 'twitter:title', content: computed(() => `${t('header.title')} | ${t('header.history')}`) },
+    { name: 'twitter:description', content: computed(() => t('header.history_description')) }
   ]
 })
 

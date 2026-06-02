@@ -3,6 +3,26 @@ export default defineNuxtConfig({
   compatibilityDate: '2025-07-15',
   devtools: { enabled: true },
 
+  app: {
+    head: {
+      charset: 'utf-8',
+      viewport: 'width=device-width, initial-scale=1',
+      meta: [
+        { name: 'theme-color', content: '#fdc700' },
+        { name: 'keywords', content: 'bill splitter, receipt scanner, go dutch, proportional split, split bill, money share' },
+        { property: 'og:type', content: 'website' },
+        { property: 'og:image', content: '/bill-split-favicon.svg' },
+        { name: 'twitter:card', content: 'summary' },
+        { name: 'twitter:image', content: '/bill-split-favicon.svg' }
+      ],
+      link: [
+        { rel: 'icon', type: 'image/svg+xml', href: '/bill-split-favicon.svg' },
+        { rel: 'apple-touch-icon', href: '/bill-split-favicon.svg' },
+        { rel: 'manifest', href: '/manifest.json' }
+      ]
+    }
+  },
+
   // Enable Nuxt 4 directory structure and features
   future: {
     compatibilityVersion: 4,

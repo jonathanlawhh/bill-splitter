@@ -4,6 +4,7 @@
     "subtitle": "AA mou",
     "settings": "Settings",
     "history": "History",
+    "history_description": "Great ancestors make history. You just make debt.",
     "geminiApiKey": "Gemini API Key",
     "apiKeyCaption": "This key will be saved locally in your browser and sent only to the server for processing.",
     "saveSettings": "Save Settings"
@@ -78,7 +79,6 @@
     "deleteSingleText": "Are you sure you want to delete the bill for {merchant}?",
     "cancel": "Cancel",
     "delete": "Delete",
-    "emptyTitle": "NO HISTORY FOUND",
     "emptyText": "You haven't scanned or parsed any receipts yet.",
     "unknownMerchant": "UNKNOWN MERCHANT",
     "unknownDate": "Unknown Date"

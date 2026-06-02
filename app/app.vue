@@ -127,25 +127,13 @@ const { locale, setLocale, t } = useI18n()
 useHead({
   title: computed(() => `${t('header.title')} | ${t('header.subtitle')}`),
   meta: [
-    { charset: 'utf-8' },
-    { name: 'viewport', content: 'width=device-width, initial-scale=1' },
     { name: 'description', content: computed(() => t('landing.tagline')) },
-    { name: 'keywords', content: 'bill splitter, receipt scanner, go dutch, proportional split, split bill, money share' },
     // OpenGraph / Facebook
-    { property: 'og:title', content: computed(() => `${t('header.title')} - ${t('header.subtitle')}`) },
+    { property: 'og:title', content: computed(() => `${t('header.title')} | ${t('header.subtitle')}`) },
     { property: 'og:description', content: computed(() => t('landing.tagline')) },
-    { property: 'og:type', content: 'website' },
-    { property: 'og:image', content: '/bill-split-favicon.svg' },
     // Twitter Card
-    { name: 'twitter:card', content: 'summary' },
-    { name: 'twitter:title', content: computed(() => `${t('header.title')} - ${t('header.subtitle')}`) },
-    { name: 'twitter:description', content: computed(() => t('landing.tagline')) },
-    { name: 'twitter:image', content: '/bill-split-favicon.svg' }
-  ],
-  link: [
-    { rel: 'icon', type: 'image/svg+xml', href: '/bill-split-favicon.svg' },
-    { rel: 'apple-touch-icon', href: '/bill-split-favicon.svg' },
-    { rel: 'manifest', href: '/manifest.json' }
+    { name: 'twitter:title', content: computed(() => `${t('header.title')} | ${t('header.subtitle')}`) },
+    { name: 'twitter:description', content: computed(() => t('landing.tagline')) }
   ]
 })
 

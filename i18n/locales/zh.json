@@ -4,6 +4,7 @@
     "subtitle": "AA 吗",
     "settings": "设置",
     "history": "历史记录",
+    "history_description": "祖先创历史。你只造债务。",
     "geminiApiKey": "Gemini API 密钥",
     "apiKeyCaption": "此密钥将保存在您的本地浏览器中，且仅发送给服务器以进行处理。",
     "saveSettings": "保存设置"
@@ -78,7 +79,6 @@
     "deleteSingleText": "您确定要删除 {merchant} 的账单吗？",
     "cancel": "取消",
     "delete": "删除",
-    "emptyTitle": "未找到历史记录",
     "emptyText": "您尚未扫描或解析过任何收据。",
     "unknownMerchant": "未知商家",
     "unknownDate": "未知日期"
