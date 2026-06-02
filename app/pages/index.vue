@@ -601,16 +601,17 @@ const shareDebt = async () => {
   const currency = receiptData.value.currency
   const merchant = receiptData.value.merchantName || 'Restaurant'
 
-  let text = `🔪 ME AT ${merchant.toUpperCase()}`
+  let text = `🔪 ME @ ${merchant.toUpperCase()}\n`
   if (receiptData.value.date) {
-    text += ` (${receiptData.value.date})`
+    text += `📅 ${receiptData.value.date}\n`
   }
-  text += `\n=============================\n`
+  text += `======================\n`
   details.selectedItemBreakdown.forEach(item => {
     if (item.isSplit) {
       text += `• ${item.name} (Split 1/${item.parts} @ ${formatCurrency(item.price, currency)}): ${formatCurrency(item.totalPrice, currency)}\n`
     } else {
-      text += `• ${item.name} (${item.quantity}x @ ${formatCurrency(item.price, currency)}): ${formatCurrency(item.totalPrice, currency)}\n`
+      let singleItemSummary = item.quantity === 1 ? '' : `(${item.quantity}x @ ${formatCurrency(item.price, currency)})`
+      text += `• ${item.name} ${singleItemSummary}: ${formatCurrency(item.totalPrice, currency)}\n`
     }
     if (item.discount > 0) {
       text += `  ${t('splitting.itemDiscount')}: -${formatCurrency(item.discount, currency)}\n`
@@ -630,8 +631,8 @@ const shareDebt = async () => {
   if (details.myGlobalDiscount > 0) {
     text += `${t('splitting.globalDiscount', { rate: (receiptData.value.discountRate * 100).toFixed(1) })}: -${formatCurrency(details.myGlobalDiscount, currency)}\n`
   }
-  text += `===================================\n`
-  text += `💰 ${t('splitting.meOwe')}: ${formatCurrency(details.myTotal, currency)}\n\n`
+  text += `======================\n`
+  text += `💸 ${t('splitting.meOwe')}: ${formatCurrency(details.myTotal, currency)}`
 
   if (navigator.share) {
     try {

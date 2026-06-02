@@ -240,6 +240,12 @@ const saveSettings = () => {
   gap: 8px;
 }
 
+@media (max-width: 600px) {
+  .header-title {
+    font-size: 1.6rem;
+  }
+}
+
 .header-actions {
   display: flex;
   gap: 12px;
