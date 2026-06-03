@@ -205,7 +205,7 @@ const saveSettings = () => {
 .neo-header {
   padding: 16px 24px;
   position: sticky;
-  top: 0;
+  top: -100px;
   z-index: 100;
   background-color: var(--color-bg) !important;
   border-bottom: var(--border-width) solid var(--color-navy) !important;
