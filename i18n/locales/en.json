@@ -99,5 +99,15 @@
     "billRemoved": "Bill removed from history.",
     "historyCleared": "All history deleted successfully.",
     "settingsSaved": "Settings saved successfully!"
+  },
+  "pwa": {
+    "installSection": "App Installation",
+    "installBtn": "Install App",
+    "alreadyInstalled": "App is already installed!",
+    "notSupported": "Installation not supported by browser. On iOS Safari, tap the Share button and select 'Add to Home Screen'.",
+    "bannerTitle": "GO OFFLINE WITH THE APP!",
+    "bannerText": "Tired of loading pages? Install the app for instant receipt scanning even when you have crappy signal.",
+    "dismissBtn": "Later",
+    "installSuccess": "App installed successfully! Quick check: do your friends still owe you money?"
   }
 }

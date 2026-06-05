@@ -102,6 +102,29 @@
             {{ $t('header.apiKeyCaption') }}
           </p>
         </div>
+
+        <!-- App Installation Section -->
+        <div class="mb-6 pwa-settings-section">
+          <label class="d-block font-weight-bold mb-2">{{ $t('pwa.installSection') }}</label>
+          <div v-if="deferredPrompt">
+            <v-btn class="neo-btn pink w-100 mx-0 my-2 d-flex align-center justify-center gap-2" style="min-height: 52px; height: 52px; margin: 8px 0 !important;" @click="triggerInstall">
+              <v-icon class="mr-2">mdi-download</v-icon>
+              {{ $t('pwa.installBtn') }}
+            </v-btn>
+          </div>
+          <div v-else-if="isAppInstalled">
+            <div class="d-flex align-center gap-2 text-teal font-weight-bold p-3 neo-border w-100" style="background-color: var(--color-gray); border-radius: 12px;">
+              <v-icon color="#00F5D4" class="mr-2">mdi-check-decagram</v-icon>
+              <span>{{ $t('pwa.alreadyInstalled') }}</span>
+            </div>
+          </div>
+          <div v-else>
+            <p class="text-caption text-dark-gray mb-0">
+              {{ $t('pwa.notSupported') }}
+            </p>
+          </div>
+        </div>
+
         <div class="d-flex justify-end gap-2 mt-6">
           <v-btn class="neo-btn navy px-6" @click="saveSettings" :disabled="apiKey.length > 0 && apiKey.length < 11">
             {{ $t('header.saveSettings') }}
@@ -109,6 +132,32 @@
         </div>
       </div>
     </v-dialog>
+
+    <!-- Floating Install Banner -->
+    <div v-if="showInstallBanner && deferredPrompt" class="neo-card install-banner p-4">
+      <div class="d-flex align-start gap-2">
+        <div class="flex-grow-1">
+          <div class="d-flex align-center gap-2 mb-2">
+            <div class="neo-badge">PWA</div>
+            <h3 class="text-subtitle-1 font-weight-black m-0" style="font-size: 1.1rem; line-height: 1.2;">
+              {{ $t('pwa.bannerTitle') }}
+            </h3>
+          </div>
+          <p class="text-body-2 mb-4 text-dark-gray" style="font-size: 0.9rem; line-height: 1.4; margin-bottom: 16px !important;">
+            {{ $t('pwa.bannerText') }}
+          </p>
+          <div class="d-flex gap-2">
+            <v-btn class="neo-btn pink mx-0 my-0 px-4 py-2" style="min-height: 44px; height: 44px; flex: 1; margin: 0 !important;" @click="triggerInstall">
+              {{ $t('pwa.installBtn') }}
+            </v-btn>
+            <v-btn class="neo-btn mx-0 my-0 px-4 py-2" style="min-height: 44px; height: 44px; flex: 1; margin: 0 !important;" @click="dismissBanner">
+              {{ $t('pwa.dismissBtn') }}
+            </v-btn>
+          </div>
+        </div>
+        <v-btn icon="mdi-close" variant="text" size="small" class="ml-2 mt-n1" @click="dismissBanner" aria-label="Close"></v-btn>
+      </div>
+    </div>
 
     <!-- Global Alert Snackbars -->
     <v-snackbar v-model="snackbar.show" :timeout="3000" color="#0F172A" location="top" class="neo-border">
@@ -156,8 +205,66 @@ const showNotification = (text, isError = false) => {
 provide('globalApiKey', apiKey)
 provide('showNotification', showNotification)
 
+const deferredPrompt = ref(null)
+const isAppInstalled = ref(false)
+const showInstallBanner = ref(false)
+
+const checkInstalledState = () => {
+  if (typeof window !== 'undefined') {
+    if (window.matchMedia('(display-mode: standalone)').matches || window.navigator?.standalone) {
+      isAppInstalled.value = true
+    } else {
+      isAppInstalled.value = false
+    }
+  }
+}
+
+const triggerInstall = async () => {
+  if (!deferredPrompt.value) return
+  
+  // Show the install prompt
+  deferredPrompt.value.prompt()
+  
+  // Wait for the user to respond to the prompt
+  const { outcome } = await deferredPrompt.value.userChoice
+  console.log(`User response to the install prompt: ${outcome}`)
+  
+  // We've used the prompt, and can't use it again, discard it
+  deferredPrompt.value = null
+  showInstallBanner.value = false
+}
+
+const dismissBanner = () => {
+  showInstallBanner.value = false
+  localStorage.setItem('pwa_banner_dismissed', 'true')
+}
+
 onMounted(() => {
   apiKey.value = localStorage.getItem('gemini_api_key') || ''
+
+  checkInstalledState()
+
+  const isDismissed = localStorage.getItem('pwa_banner_dismissed') === 'true'
+
+  window.addEventListener('beforeinstallprompt', (e) => {
+    // Prevent Chrome 67 and earlier from automatically showing the prompt
+    e.preventDefault()
+    // Stash the event so it can be triggered later.
+    deferredPrompt.value = e
+    
+    // Only show banner if not already dismissed and not already installed
+    if (!isDismissed && !isAppInstalled.value) {
+      showInstallBanner.value = true
+    }
+  })
+
+  window.addEventListener('appinstalled', () => {
+    // Clear the deferredPrompt and set installed to true
+    deferredPrompt.value = null
+    isAppInstalled.value = true
+    showInstallBanner.value = false
+    showNotification(t('pwa.installSuccess'))
+  })
 
   // PWA Service Worker management
   if ('serviceWorker' in navigator) {
@@ -253,5 +360,32 @@ const saveSettings = () => {
 
 .text-dark-gray {
   color: var(--color-dark-gray);
+}
+
+.pwa-settings-section {
+  border-top: var(--border-width) solid var(--color-navy);
+  padding-top: 20px;
+  margin-top: 20px;
+}
+
+.install-banner {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 999;
+  max-width: 400px;
+  background-color: var(--color-white) !important;
+  border: var(--border-width) solid var(--color-navy) !important;
+  box-shadow: 8px 8px 0px 0px var(--color-navy) !important;
+}
+
+@media (max-width: 600px) {
+  .install-banner {
+    bottom: 16px;
+    left: 16px;
+    right: 16px;
+    max-width: none;
+    margin: 0;
+  }
 }
 </style>

@@ -99,5 +99,15 @@
     "billRemoved": "账单已从历史记录中移除。",
     "historyCleared": "所有历史记录已成功删除。",
     "settingsSaved": "设置保存成功！"
+  },
+  "pwa": {
+    "installSection": "应用安装",
+    "installBtn": "安装应用",
+    "alreadyInstalled": "应用已安装！",
+    "notSupported": "浏览器不支持直接安装。iOS Safari 用户请点击“分享”按钮并选择“添加到主屏幕”。",
+    "bannerTitle": "安装应用，离线扫描！",
+    "bannerText": "网速太慢？安装应用即可快速启动，即便在信号稀烂的地方也能离线扫描收据。",
+    "dismissBtn": "等下再装",
+    "installSuccess": "应用安装成功！顺便问一句：你朋友把欠你的钱还了吗？"
   }
 }
