@@ -34,21 +34,19 @@ self.addEventListener('fetch', (event) => {
 
   event.respondWith(
     caches.match(event.request).then((cachedResponse) => {
-      if (cachedResponse) {
-        return cachedResponse;
-      }
-      return fetch(event.request).then((response) => {
-        if (!response || response.status !== 200 || response.type !== 'basic') {
-          return response;
+      const fetchPromise = fetch(event.request).then((networkResponse) => {
+        if (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic') {
+          const responseToCache = networkResponse.clone();
+          caches.open(CACHE_NAME).then((cache) => {
+            cache.put(event.request, responseToCache);
+          });
         }
-        const responseToCache = response.clone();
-        caches.open(CACHE_NAME).then((cache) => {
-          cache.put(event.request, responseToCache);
-        });
-        return response;
+        return networkResponse;
       }).catch(() => {
-        // Fallback for offline usage
+        // Fallback for offline usage or network failure
       });
+
+      return cachedResponse || fetchPromise;
     })
   );
 });
