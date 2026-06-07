@@ -691,7 +691,7 @@ const shareBill = async () => {
 
   let text = `🧾 BILL FROM ${merchant.toUpperCase()}\n`
   if (receiptData.value.date) {
-    text += ` (${receiptData.value.date})\n`
+    text += `📅 ${receiptData.value.date}\n`
   }
 
   if (navigator.share) {
