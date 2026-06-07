@@ -66,7 +66,8 @@
     "overallServiceCharge": "Overall Service Charge",
     "overallTax": "Overall Tax",
     "overallGlobalDiscount": "Overall Global Discount",
-    "grandTotal": "Grand Total"
+    "grandTotal": "Grand Total",
+    "viewMap": "View on Google Map"
   },
   "history": {
     "back": "Back to Splitter",

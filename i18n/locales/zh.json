@@ -66,7 +66,8 @@
     "overallServiceCharge": "总服务费",
     "overallTax": "总税额",
     "overallGlobalDiscount": "总全局折扣",
-    "grandTotal": "总计"
+    "grandTotal": "总计",
+    "viewMap": "在谷歌地图上查看"
   },
   "history": {
     "back": "返回平分器",

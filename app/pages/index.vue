@@ -95,8 +95,15 @@
           <div class="neo-card p-6 bg-white height-100">
             <div class="d-flex justify-between align-center mb-6 border-b pb-4">
               <div>
-                <h3 class="text-h5 font-weight-black">{{ receiptData.merchantName || $t('splitting.defaultMerchant') }}
+                <h3 class="text-h5 font-weight-black mb-1">
+                  {{ receiptData.merchantName || $t('splitting.defaultMerchant') }}
                 </h3>
+                <div v-if="receiptData.googleMapsUrl" class="mb-2">
+                  <a :href="receiptData.googleMapsUrl" target="_blank" rel="noopener noreferrer" class="text-decoration-none font-weight-black text-caption d-inline-flex align-center gap-1 map-link" :title="$t('splitting.viewMap')" :aria-label="$t('splitting.viewMap')">
+                    <v-icon color="#FF007F" class="map-marker-icon" size="18">mdi-map-marker</v-icon>
+                    <span>{{ $t('splitting.viewMap') }}</span>
+                  </a>
+                </div>
                 <p class="text-caption text-dark-gray mb-0">
                   <span v-if="receiptData.date" class="mr-2">📅 {{ receiptData.date }}</span>
                 </p>
@@ -262,7 +269,8 @@ const receiptData = ref({
   serviceCharge: 0,
   discount: 0,
   subtotal: 0,
-  total: 0
+  total: 0,
+  googleMapsUrl: ''
 })
 const selectedQuantities = ref({}) // idx -> quantity
 const splitSettings = ref({}) // idx -> { enabled: boolean, parts: number }
@@ -490,7 +498,8 @@ const newBill = () => {
     serviceCharge: 0,
     discount: 0,
     subtotal: 0,
-    total: 0
+    total: 0,
+    googleMapsUrl: ''
   }
   selectedQuantities.value = {}
   splitSettings.value = {}
@@ -984,5 +993,21 @@ import { nextTick } from 'vue'
 
 .neo-parts-input:focus {
   box-shadow: 2px 2px 0px 0px var(--color-navy);
+}
+
+.map-link {
+  transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.map-link:hover {
+  transform: translateY(-2px) scale(1.1);
+}
+
+.map-marker-icon {
+  transition: color 0.2s ease;
+}
+
+.map-link:hover .map-marker-icon {
+  color: var(--color-teal) !important;
 }
 </style>

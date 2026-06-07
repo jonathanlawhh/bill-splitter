@@ -53,7 +53,7 @@ export default defineEventHandler(async (event) => {
             data
           }
         },
-        "Extract data from this receipt. First, check if image is a valid receipt. If image is not receipt, set 'isReceipt' to false, otherwise true. If an item name has no English description, append the translation behind in brackets. Be precise with prices and quantities. Identify the merchant/shop name and the date of the receipt if visible. Important: If a discount applies only to a specific item, record it in that item's 'discount' field. The global 'discount' field should only be used for discounts that apply to the entire bill (e.g., total bill discount, payment method promo). Return a clean JSON object according to the schema."
+        "Extract data from this receipt. First, check if image is a valid receipt. If image is not receipt, set 'isReceipt' to false, otherwise true. If an item name has no English description, append the translation behind in brackets. Be precise with prices and quantities. Identify the merchant/shop name and the date of the receipt if visible. If possible, generate a Google Maps search link of where the receipt was taken (incorporating the merchant name, address/branch, and city/country based on currency/context). Important: If a discount applies only to a specific item, record it in that item's 'discount' field. The global 'discount' field should only be used for discounts that apply to the entire bill (e.g., total bill discount, payment method promo). Return a clean JSON object according to the schema."
       ],
       config: {
         responseMimeType: 'application/json',
@@ -82,9 +82,10 @@ export default defineEventHandler(async (event) => {
             serviceCharge: { type: Type.NUMBER, description: 'Total service charge or service tax recorded on the receipt' },
             discount: { type: Type.NUMBER, description: 'Global discount amount applied to the total bill after subtotal (as a positive number). Do not include item-specific discounts here.' },
             subtotal: { type: Type.NUMBER, description: 'Subtotal before tax/discount/service charge' },
-            total: { type: Type.NUMBER, description: 'Total amount on the receipt' }
+            total: { type: Type.NUMBER, description: 'Total amount on the receipt' },
+            googleMapsUrl: { type: Type.STRING, description: 'A Google Maps search URL for the location where the receipt was taken (e.g., https://www.google.com/maps/search/?api=1&query=Merchant+Name+Address). Construct this URL using the merchant name, the physical address/branch, and the city/country (inferred from currency or receipt details). If the receipt does not have enough location information or a location cannot be determined, set this to null.' }
           },
-          required: ['isReceipt', 'merchantName', 'date', 'currency', 'items', 'tax', 'serviceCharge', 'discount', 'subtotal', 'total', 'isTaxInItem']
+          required: ['isReceipt', 'merchantName', 'date', 'currency', 'items', 'tax', 'serviceCharge', 'discount', 'subtotal', 'total', 'isTaxInItem', 'googleMapsUrl']
         }
       }
     })
