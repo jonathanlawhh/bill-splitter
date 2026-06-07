@@ -1,4 +1,8 @@
-const CACHE_NAME = 'bill-splitter-v1';
+export default defineEventHandler((event) => {
+  const buildId = process.env.BUILD_ID || 'v1';
+  
+  const swCode = `
+const CACHE_NAME = 'bill-splitter-${buildId}';
 const ASSETS_TO_CACHE = [
   '/',
   '/manifest.json',
@@ -49,4 +53,12 @@ self.addEventListener('fetch', (event) => {
       return cachedResponse || fetchPromise;
     })
   );
+});
+  `.trim();
+
+  // Set headers to serve as a JavaScript service worker and prevent aggressive caching of the sw script itself
+  setHeader(event, 'Content-Type', 'application/javascript');
+  setHeader(event, 'Cache-Control', 'no-cache, no-store, must-revalidate');
+
+  return swCode;
 });
