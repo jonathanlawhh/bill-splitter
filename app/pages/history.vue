@@ -65,32 +65,43 @@
       </div>
 
       <!-- History List -->
-      <div v-else class="history-list d-flex flex-column gap-4" id="history-list">
-        <div v-for="item in historyItems" :key="item.index"
-          class="history-item-row neo-card p-6 bg-white d-flex flex-column flex-sm-row justify-between align-start align-sm-center transition-all cursor-pointer gap-4"
-          @click="openBill(item.encoded)" :id="'history-item-' + item.index">
+      <div v-else class="history-list d-flex flex-column gap-6" id="history-list">
+        <div v-for="group in groupedHistory" :key="group.monthYear" class="d-flex flex-column gap-4">
+          <!-- Month/Year Header -->
+          <div class="month-group-header">
+            <span class="month-title">
+              <v-icon color="white" size="small" class="mr-1">mdi-calendar-month</v-icon>
+              {{ group.monthYear }}
+            </span>
+          </div>
 
-          <!-- Left: Receipt Info -->
-          <div class="d-flex align-center gap-4 flex-grow-1">
-            <div>
-              <h2 class="text-h5 font-weight-black mb-1 merchant-title">{{ item.merchantName }}</h2>
-              <div class="text-body-2 font-weight-bold text-dark-gray d-flex align-center gap-1">
-                <v-icon size="small" class="mr-1">mdi-calendar</v-icon>
-                <span>{{ item.date }}</span>
+          <!-- Cards under this month group -->
+          <div v-for="item in group.items" :key="item.index"
+            class="history-item-row neo-card p-6 bg-white d-flex flex-column flex-sm-row justify-between align-start align-sm-center transition-all cursor-pointer gap-4"
+            @click="openBill(item.encoded)" :id="'history-item-' + item.index">
+
+            <!-- Left: Receipt Info -->
+            <div class="d-flex align-center gap-4 flex-grow-1">
+              <div>
+                <h2 class="text-h5 font-weight-black mb-1 merchant-title">{{ item.merchantName }}</h2>
+                <div class="text-body-2 font-weight-bold text-dark-gray d-flex align-center gap-1">
+                  <v-icon size="small" class="mr-1">mdi-calendar</v-icon>
+                  <span>{{ item.date }}</span>
+                </div>
               </div>
             </div>
-          </div>
 
-          <!-- Right: Total & Delete Actions -->
-          <div class="d-flex align-center justify-between justify-sm-end w-100 w-sm-auto gap-6">
-            <div class="text-right font-weight-black text-h5 text-navy mr-4">
-              {{ formatCurrency(item.total, item.currency) }}
+            <!-- Right: Total & Delete Actions -->
+            <div class="d-flex align-center justify-between justify-sm-end w-100 w-sm-auto gap-6">
+              <div class="text-right font-weight-black text-h5 text-navy mr-4">
+                {{ formatCurrency(item.total, item.currency) }}
+              </div>
+              <v-btn class="neo-btn pink delete-single-btn" icon="mdi-delete" @click.stop="deleteItem(item)"
+                aria-label="Delete bill" :id="'delete-btn-' + item.index">
+              </v-btn>
             </div>
-            <v-btn class="neo-btn pink delete-single-btn" icon="mdi-delete" @click.stop="deleteItem(item)"
-              aria-label="Delete bill" :id="'delete-btn-' + item.index">
-            </v-btn>
-          </div>
 
+          </div>
         </div>
       </div>
 
@@ -102,7 +113,7 @@
 import { ref, onMounted, inject, computed } from 'vue'
 import { formatCurrency, safeAtob, getBillHistory, deleteBillFromHistory, clearBillHistory } from '~/utils/helpers'
 
-const { t } = useI18n()
+const { t, locale } = useI18n()
 
 useHead({
   title: computed(() => `${t('header.title')} | ${t('header.history')}`),
@@ -123,6 +134,46 @@ const showDeleteDialog = ref(false)
 const itemToDelete = ref(null)
 
 const showNotification = inject('showNotification', () => { })
+
+const groupedHistory = computed(() => {
+  const groups = []
+  historyItems.value.forEach(item => {
+    const monthYear = getMonthYear(item.date)
+    let group = groups.find(g => g.monthYear === monthYear)
+    if (!group) {
+      group = {
+        monthYear,
+        items: []
+      }
+      groups.push(group)
+    }
+    group.items.push(item)
+  })
+  return groups
+})
+
+const getMonthYear = (dateStr) => {
+  if (!dateStr || dateStr === t('history.unknownDate')) {
+    return t('history.unknownDate')
+  }
+  
+  const parts = dateStr.split('-')
+  if (parts.length === 3) {
+    const year = parseInt(parts[0], 10)
+    const month = parseInt(parts[1], 10) - 1
+    const day = parseInt(parts[2], 10)
+    if (!isNaN(year) && !isNaN(month) && !isNaN(day)) {
+      const dateObj = new Date(year, month, day)
+      return new Intl.DateTimeFormat(locale.value || 'en', { month: 'long', year: 'numeric' }).format(dateObj)
+    }
+  }
+
+  const dateObj = new Date(dateStr)
+  if (isNaN(dateObj.getTime())) {
+    return t('history.unknownDate')
+  }
+  return new Intl.DateTimeFormat(locale.value || 'en', { month: 'long', year: 'numeric' }).format(dateObj)
+}
 
 onMounted(() => {
   loadHistory()
@@ -184,6 +235,30 @@ const confirmClearHistory = () => {
   max-width: 800px;
   margin: 0 auto;
   width: 100%;
+}
+
+.month-group-header {
+  margin-top: 1.5rem;
+  margin-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+  padding-left: 12px;
+}
+
+.month-title {
+  background-color: var(--color-navy);
+  color: var(--color-white);
+  padding: 6px 16px;
+  font-size: 1.1rem;
+  font-weight: 900;
+  letter-spacing: 0.05em;
+  border: 3px solid var(--color-navy);
+  border-radius: 8px;
+  box-shadow: 4px 4px 0px 0px var(--color-pink);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  text-transform: uppercase;
 }
 
 .history-item-row:hover {
