@@ -249,7 +249,7 @@
 </template>
 
 <script setup>
-import { ref, computed, inject, onBeforeUnmount, watch, onMounted } from 'vue'
+import { ref, computed, inject, onBeforeUnmount, watch, onMounted, nextTick } from 'vue'
 import { formatCurrency, fileToBase64, safeBtoa, safeAtob, saveBillToHistory } from '~/utils/helpers'
 
 const { t } = useI18n()
@@ -473,6 +473,13 @@ const decrementQty = (idx) => {
 }
 
 // Reset calculations
+const clearSelections = () => {
+  defaultSplitParts.value = 2
+  firstCustomizedIdx.value = null
+  selectedQuantities.value = {}
+  splitSettings.value = {}
+}
+
 const resetSplits = () => {
   defaultSplitParts.value = 2
   firstCustomizedIdx.value = null
@@ -480,7 +487,7 @@ const resetSplits = () => {
     selectedQuantities.value[idx] = 0
     if (splitSettings.value[idx]) {
       splitSettings.value[idx].enabled = false
-      splitSettings.value[idx].parts = defaultSplitParts.value
+      splitSettings.value[idx].parts = 2
     }
   }
   showNotification(t('notifications.debtReset'))
@@ -509,10 +516,7 @@ const newBill = () => {
     total: 0,
     googleMapsUrl: ''
   }
-  selectedQuantities.value = {}
-  splitSettings.value = {}
-  defaultSplitParts.value = 2
-  firstCustomizedIdx.value = null
+  clearSelections()
 }
 
 const getItemShare = (item, idx) => {
@@ -579,14 +583,11 @@ const calcs = computed(() => {
   let myGlobalDiscount = 0
 
   let receiptItemSubtotal = 0
-  for (let i = 0; i < items.length; i++) {
-    receiptItemSubtotal += items[i].price * items[i].quantity
-  }
-
-  // Calculate user subtotal & individual discounts
   const selectedItemBreakdown = []
   for (let i = 0; i < items.length; i++) {
     const item = items[i]
+    receiptItemSubtotal += item.price * item.quantity
+
     const share = getItemShare(item, i)
     if (share.quantity > 0) {
       const itemCost = share.cost
@@ -800,10 +801,7 @@ watch(
 )
 </script>
 
-<script>
-// Use standard Vue nextTick if needed
-import { nextTick } from 'vue'
-</script>
+
 
 <style scoped>
 .max-width-600 {
