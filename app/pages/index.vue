@@ -277,6 +277,8 @@ const receiptData = ref({
 })
 const selectedQuantities = ref({}) // idx -> quantity
 const splitSettings = ref({}) // idx -> { enabled: boolean, parts: number }
+const defaultSplitParts = ref(2)
+const firstCustomizedIdx = ref(null)
 const showShareDialog = ref(false)
 
 // Global injected values from app.vue
@@ -429,7 +431,7 @@ const processReceipt = async (base64Str) => {
       splitSettings.value = {}
       for (let i = 0; i < response.data.items.length; i++) {
         selectedQuantities.value[i] = 0
-        splitSettings.value[i] = { enabled: false, parts: 2 }
+        splitSettings.value[i] = { enabled: false, parts: defaultSplitParts.value }
       }
 
       // Increment usage count tracking
@@ -472,11 +474,13 @@ const decrementQty = (idx) => {
 
 // Reset calculations
 const resetSplits = () => {
+  defaultSplitParts.value = 2
+  firstCustomizedIdx.value = null
   for (const idx in selectedQuantities.value) {
     selectedQuantities.value[idx] = 0
     if (splitSettings.value[idx]) {
       splitSettings.value[idx].enabled = false
-      splitSettings.value[idx].parts = 2
+      splitSettings.value[idx].parts = defaultSplitParts.value
     }
   }
   showNotification(t('notifications.debtReset'))
@@ -507,6 +511,8 @@ const newBill = () => {
   }
   selectedQuantities.value = {}
   splitSettings.value = {}
+  defaultSplitParts.value = 2
+  firstCustomizedIdx.value = null
 }
 
 const getItemShare = (item, idx) => {
@@ -539,6 +545,26 @@ const sanitizeParts = (idx) => {
       splitSettings.value[idx].parts = 0
     } else {
       splitSettings.value[idx].parts = val
+      if (val >= 2) {
+        if (firstCustomizedIdx.value === null) {
+          firstCustomizedIdx.value = idx
+          defaultSplitParts.value = val
+          // Update all other non-enabled items to use this new default parts
+          for (const i in splitSettings.value) {
+            if (String(i) !== String(idx) && !splitSettings.value[i].enabled) {
+              splitSettings.value[i].parts = val
+            }
+          }
+        } else if (firstCustomizedIdx.value === idx) {
+          defaultSplitParts.value = val
+          // Keep updating other non-enabled items in case of correction
+          for (const i in splitSettings.value) {
+            if (String(i) !== String(idx) && !splitSettings.value[i].enabled) {
+              splitSettings.value[i].parts = val
+            }
+          }
+        }
+      }
     }
   }
 }
@@ -741,7 +767,12 @@ watch(
             splitSettings.value = {}
             for (let i = 0; i < data.items.length; i++) {
               selectedQuantities.value[i] = 0
-              splitSettings.value[i] = (data.splitSettings && data.splitSettings[i]) || { enabled: false, parts: 2 }
+              const preset = data.splitSettings && data.splitSettings[i]
+              splitSettings.value[i] = preset || { enabled: false, parts: defaultSplitParts.value }
+              if (preset && preset.enabled && firstCustomizedIdx.value === null) {
+                firstCustomizedIdx.value = i
+                defaultSplitParts.value = preset.parts
+              }
             }
             state.value = 'splitting'
           }
@@ -752,6 +783,20 @@ watch(
     }
   },
   { immediate: true }
+)
+
+// Watch splitSettings to handle resetting firstCustomizedIdx if it gets disabled
+watch(
+  () => splitSettings.value,
+  (newSettings) => {
+    if (firstCustomizedIdx.value !== null) {
+      const item = newSettings[firstCustomizedIdx.value]
+      if (!item || !item.enabled) {
+        firstCustomizedIdx.value = null
+      }
+    }
+  },
+  { deep: true }
 )
 </script>
 
