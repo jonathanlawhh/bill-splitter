@@ -205,7 +205,7 @@
               <v-btn class="neo-btn teal font-weight-black w-80" @click="shareDebt">
                 <v-icon class="mr-2">mdi-share</v-icon> {{ $t('splitting.shareMyDebt') }}
               </v-btn>
-              <v-btn class="neo-btn font-weight-black w-80" @click="shareBill">
+              <v-btn class="neo-btn font-weight-black w-80" @click="showShareDialog = true">
                 <v-icon class="mr-2">mdi-share-variant</v-icon> {{ $t('splitting.shareBill') }}
               </v-btn>
               <v-btn class="neo-btn w-80 py-4" @click="resetSplits">
@@ -242,6 +242,9 @@
         </div>
       </div>
     </div>
+
+    <!-- Share Bill Options Dialog -->
+    <ShareBillDialog v-model="showShareDialog" @select="shareBill" />
   </div>
 </template>
 
@@ -274,6 +277,7 @@ const receiptData = ref({
 })
 const selectedQuantities = ref({}) // idx -> quantity
 const splitSettings = ref({}) // idx -> { enabled: boolean, parts: number }
+const showShareDialog = ref(false)
 
 // Global injected values from app.vue
 const globalApiKey = inject('globalApiKey', ref(''))
@@ -672,21 +676,25 @@ const shareDebt = async () => {
 }
 
 // Share overall Bill and generate encoded join link
-const shareBill = async () => {
+const shareBill = async (withPresets = false) => {
   const currency = receiptData.value.currency
   const merchant = receiptData.value.merchantName || 'Restaurant'
 
   // Generate the sharing URL with the base64-encoded JSON payload
   let shareUrl = ''
   try {
-    const payload = JSON.stringify({
-      ...receiptData.value,
-      splitSettings: splitSettings.value
-    })
+    const payloadObj = { ...receiptData.value }
+    if (withPresets) {
+      payloadObj.splitSettings = splitSettings.value
+    } else {
+      delete payloadObj.splitSettings
+    }
+    const payload = JSON.stringify(payloadObj)
     const encoded = safeBtoa(payload)
     shareUrl = `${window.location.origin}${window.location.pathname}?bill=${encoded}`
   } catch (err) {
     showNotification(t('notifications.failedGenerateShareUrl'), true)
+    return
   }
 
   let text = `🧾 BILL FROM ${merchant.toUpperCase()}\n`
@@ -708,7 +716,7 @@ const shareBill = async () => {
     }
   } else {
     try {
-      await navigator.clipboard.writeText(text)
+      await navigator.clipboard.writeText(`${text}\n${shareUrl}`)
       showNotification(t('notifications.billCopied'))
     } catch (err) {
       showNotification(t('notifications.failedCopyClipboard'), true)
