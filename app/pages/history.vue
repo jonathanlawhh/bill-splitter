@@ -1,11 +1,11 @@
 <template>
   <main class="history-page">
-    <div class="d-flex flex-column gap-6">
+    <div class="d-flex flex-column ga-6">
 
       <!-- Top Bar / Navigation -->
-      <div class="d-flex flex-column flex-sm-row justify-between align-center gap-4">
+      <div class="d-flex flex-column flex-sm-row justify-between align-center ga-4">
         <div>
-          <v-btn class="neo-btn" to="/" id="back-home-btn">
+          <v-btn class="neo-btn navy" to="/" id="back-home-btn">
             <v-icon class="mr-2">mdi-arrow-left</v-icon> {{ $t('history.back') }}
           </v-btn>
         </div>
@@ -17,17 +17,17 @@
       </div>
 
       <!-- Confirmation Overlay/Card for Delete All -->
-      <div v-if="showConfirmDeleteAll" class="neo-card p-6 bg-white border-pink" id="confirm-delete-all-card">
-        <div class="d-flex align-center gap-4 mb-4">
+      <div v-if="showConfirmDeleteAll" class="neo-card border-pink" id="confirm-delete-all-card">
+        <div class="d-flex align-center ga-4 mb-4">
           <v-icon color="#FF007F" size="40">mdi-alert-decagram</v-icon>
           <div>
-            <h2 class="text-h5 font-weight-black mb-1">{{ $t('history.confirmAllTitle') }}</h2>
-            <p class="text-body-1 font-weight-bold text-dark-gray mb-0">
+            <p class="font-weight-black">{{ $t('history.confirmAllTitle') }}</p>
+            <p class="text-body-1 font-weight-bold">
               {{ $t('history.confirmAllText') }}
             </p>
           </div>
         </div>
-        <div class="d-flex justify-end gap-4">
+        <div class="d-flex">
           <v-btn class="neo-btn navy" @click="showConfirmDeleteAll = false" id="cancel-delete-all-btn">{{
             $t('history.keepIt') }}</v-btn>
           <v-btn class="neo-btn pink" @click="confirmClearHistory" id="confirm-delete-all-btn">{{
@@ -36,14 +36,14 @@
       </div>
       <!-- Delete Confirmation Dialog -->
       <v-dialog v-model="showDeleteDialog" max-width="500px">
-        <div class="neo-card p-6 bg-white border-pink" id="confirm-delete-single-dialog" style="margin: 0 !important;">
+        <div class="neo-card border-pink" id="confirm-delete-single-dialog" style="margin: 0 !important;">
           <div class="d-flex justify-between align-center mb-4">
-            <h2 class="text-h5 font-weight-black">{{ $t('history.deleteSingleTitle') }}</h2>
+            <p class="font-weight-black">{{ $t('history.deleteSingleTitle') }}</p>
           </div>
-          <p class="text-body-1 font-weight-bold text-dark-gray mb-6">
+          <p class="text-body-1 font-weight-bold">
             {{ $t('history.deleteSingleText', { merchant: itemToDelete?.merchantName }) }}
           </p>
-          <div class="d-flex justify-end gap-3">
+          <div class="d-flex justify-end ga-3">
             <v-btn class="neo-btn navy px-6" @click="showDeleteDialog = false" id="cancel-delete-single-btn">{{
               $t('history.cancel') }}</v-btn>
             <v-btn class="neo-btn pink px-6" @click="confirmDeleteSingle" id="confirm-delete-single-btn">{{
@@ -54,19 +54,18 @@
 
       <!-- Empty State -->
       <div v-if="historyItems.length === 0"
-        class="neo-card p-12 bg-white text-center d-flex flex-column align-center justify-center gap-6"
-        id="empty-state">
+        class="neo-card text-center d-flex flex-column align-center justify-center ga-6" id="empty-state">
         <div>
-          <h2 class="text-h4 font-weight-black mb-2">{{ $t('header.history_description') }}</h2>
-          <p class="text-h6 font-weight-bold text-dark-gray mb-0">
+          <h2 class="font-weight-black mb-2">{{ $t('header.history_description') }}</h2>
+          <h3>
             {{ $t('history.emptyText') }}
-          </p>
+          </h3>
         </div>
       </div>
 
       <!-- History List -->
-      <div v-else class="history-list d-flex flex-column gap-6" id="history-list">
-        <div v-for="group in groupedHistory" :key="group.monthYear" class="d-flex flex-column gap-4">
+      <div v-else class="history-list d-flex flex-column ga-6" id="history-list">
+        <div v-for="group in groupedHistory" :key="group.monthYear" class="d-flex flex-column ga-4">
           <!-- Month/Year Header -->
           <div class="month-group-header">
             <span class="month-title">
@@ -77,14 +76,14 @@
 
           <!-- Cards under this month group -->
           <div v-for="item in group.items" :key="item.index"
-            class="history-item-row neo-card p-6 bg-white d-flex flex-column flex-sm-row justify-between align-start align-sm-center transition-all cursor-pointer gap-4"
+            class="history-item-row neo-card bg-white d-flex flex-column flex-sm-row justify-between align-start align-sm-center transition-all cursor-pointer ga-4"
             @click="openBill(item.encoded)" :id="'history-item-' + item.index">
 
             <!-- Left: Receipt Info -->
-            <div class="d-flex align-center gap-4 flex-grow-1">
+            <div class="d-flex align-center ga-4 flex-grow-1">
               <div>
-                <h2 class="text-h5 font-weight-black mb-1 merchant-title">{{ item.merchantName }}</h2>
-                <div class="text-body-2 font-weight-bold text-dark-gray d-flex align-center gap-1">
+                <p class="font-weight-black">{{ item.merchantName }}</p>
+                <div class="text-body-2 font-weight-bold d-flex align-center ga-1">
                   <v-icon size="small" class="mr-1">mdi-calendar</v-icon>
                   <span>{{ item.date }}</span>
                 </div>
@@ -92,15 +91,14 @@
             </div>
 
             <!-- Right: Total & Delete Actions -->
-            <div class="d-flex align-center justify-between justify-sm-end w-100 w-sm-auto gap-6">
-              <div class="text-right font-weight-black text-h5 text-navy mr-4">
+            <div class="d-flex align-center justify-between justify-end w-100 w-sm-auto ga-6">
+              <div class="font-weight-black text-navy">
                 {{ formatCurrency(item.total, item.currency) }}
               </div>
               <v-btn class="neo-btn pink delete-single-btn" icon="mdi-delete" @click.stop="deleteItem(item)"
                 aria-label="Delete bill" :id="'delete-btn-' + item.index">
               </v-btn>
             </div>
-
           </div>
         </div>
       </div>
@@ -156,7 +154,7 @@ const getMonthYear = (dateStr) => {
   if (!dateStr || dateStr === t('history.unknownDate')) {
     return t('history.unknownDate')
   }
-  
+
   const parts = dateStr.split('-')
   if (parts.length === 3) {
     const year = parseInt(parts[0], 10)
@@ -270,9 +268,6 @@ const confirmClearHistory = () => {
   border-color: var(--color-pink) !important;
 }
 
-.bg-navy-light {
-  background-color: var(--color-gray);
-}
 
 .w-sm-auto {
   @media (min-width: 600px) {

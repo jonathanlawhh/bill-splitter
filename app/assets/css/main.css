@@ -25,27 +25,16 @@ body {
   min-height: 100vh;
 }
 
+.bg-primary {
+  background-color: var(--color-pink) !important;
+}
+
 /* Neubrutalism Utilities */
 .neo-border {
   border: var(--border-width) solid var(--color-navy) !important;
   border-radius: 24px !important;
 }
 
-.neo-shadow {
-  box-shadow: 8px 8px 0px 0px var(--color-navy) !important;
-}
-
-.neo-shadow-sm {
-  box-shadow: 4px 4px 0px 0px var(--color-navy) !important;
-}
-
-.neo-shadow-pink {
-  box-shadow: 8px 8px 0px 0px var(--color-pink) !important;
-}
-
-.neo-shadow-teal {
-  box-shadow: 8px 8px 0px 0px var(--color-teal) !important;
-}
 
 /* Custom Neubrutalist Card */
 .neo-card {
@@ -96,22 +85,16 @@ body {
 .neo-btn.pink {
   background-color: var(--color-pink) !important;
   color: var(--color-white) !important;
-  min-height: 64px;
-  margin: 12px;
 }
 
 .neo-btn.teal {
   background-color: var(--color-teal) !important;
   color: var(--color-navy) !important;
-  min-height: 64px;
-  margin: 12px;
 }
 
 .neo-btn.navy {
-  background-color: var(--color-navy) !important;
+  background-color: #253966 !important;
   color: var(--color-white) !important;
-  min-height: 64px;
-  margin: 12px;
 }
 
 .neo-btn:disabled,
@@ -169,8 +152,31 @@ h4,
 h5,
 h6 {
   font-weight: 900;
+  color: inherit;
+}
+
+h1 {
   text-transform: uppercase;
-  color: var(--color-navy);
+}
+
+h2 {
+  font-size: 3rem !important;
+  margin: 24px 8px
+}
+
+h3 {
+  font-size: 1.25rem !important;
+  font-weight: 700 !important;
+}
+
+h4 {
+  font-size: 1.5rem !important;
+  margin: 12px 8px;
+}
+
+p {
+  /* Somehow the margin for p is fking big */
+  margin: 4px;
 }
 
 /* Custom badge */

@@ -3,10 +3,10 @@
     <!-- Landing State -->
     <div v-if="state === 'landing'" class="landing-state d-flex flex-column align-center justify-center">
       <div class="text-center mb-10 max-width-600">
-        <h2 class="text-h3 font-weight-black mb-4">{{ $t('landing.headline') }}</h2>
-        <p class="text-h6 font-weight-bold text-dark-gray">
+        <h2 class="font-weight-black">{{ $t('landing.headline') }}</h2>
+        <h3 class="font-weight-bold">
           {{ $t('landing.tagline') }}
-        </p>
+        </h3>
       </div>
 
       <div class="buttons-grid">
@@ -26,12 +26,12 @@
       </div>
 
       <!-- Limit warning -->
-      <div v-if="isLimitExceeded" class="neo-card p-4 mt-6 d-flex align-center gap-4 bg-white"
+      <div v-if="isLimitExceeded" class="neo-card mt-6 d-flex align-center ga-4"
         style="max-width: 600px; border-color: var(--color-pink) !important;">
         <v-icon color="#FF007F" size="32">mdi-alert-decagram</v-icon>
         <div class="ml-4">
-          <div class="font-weight-black text-pink-color">{{ $t('landing.dailyLimitTitle') }}</div>
-          <div class="text-caption">{{ $t('landing.dailyLimitText') }}</div>
+          <div class="font-weight-black text-primary">{{ $t('landing.dailyLimitTitle') }}</div>
+          <div class="text-body-small">{{ $t('landing.dailyLimitText') }}</div>
         </div>
       </div>
 
@@ -40,11 +40,11 @@
         @change="handleFileChange" />
 
       <!-- Settings warning if API Key not found -->
-      <div v-if="!hasApiKey" class="neo-card p-4 mt-10 d-flex align-center gap-4">
+      <div v-if="!hasApiKey" class="neo-card d-flex align-center ga-4" style="margin-top: 64px">
         <v-icon color="#FF007F" size="32">mdi-alert-decagram</v-icon>
         <div class="ml-4">
           <div class="font-weight-black">{{ $t('landing.noApiKeyTitle') }}</div>
-          <div class="text-caption">
+          <div class="text-body-small">
             {{ $t('landing.noApiKeyText') }}
           </div>
         </div>
@@ -52,9 +52,9 @@
     </div>
 
     <!-- WebRTC In-App Camera View -->
-    <div v-else-if="state === 'camera'" class="camera-state neo-card p-6">
+    <div v-else-if="state === 'camera'" class="camera-state neo-card">
       <div class="d-flex justify-between align-center mb-4">
-        <h3 class="text-h5 font-weight-black">{{ $t('camera.title') }}</h3>
+        <h3 class="font-weight-black">{{ $t('camera.title') }}</h3>
         <v-btn class="neo-btn navy" @click="stopCamera">{{ $t('camera.cancel') }}</v-btn>
       </div>
 
@@ -63,8 +63,8 @@
         <div class="scanline"></div>
       </div>
 
-      <div class="d-flex justify-center gap-4">
-        <v-btn class="neo-btn teal px-8 py-4 text-h6" @click="captureFrame">
+      <div class="d-flex justify-center ga-4">
+        <v-btn class="neo-btn teal px-8 py-4" @click="captureFrame">
           <v-icon class="mr-2">mdi-camera-iris</v-icon> {{ $t('camera.capture') }}
         </v-btn>
       </div>
@@ -74,7 +74,7 @@
     <!-- Loading / OCR Processing State -->
     <div v-else-if="state === 'processing'"
       class="processing-state d-flex flex-column align-center justify-center py-12">
-      <div class="neo-card p-8 text-center bg-white max-width-800">
+      <div class="neo-card text-center max-width-800">
         <div class="loading-scanner mb-6">
           <div v-if="imagePreview" class="image-wrap neo-border">
             <img :src="imagePreview" alt="Receipt Preview" />
@@ -82,78 +82,80 @@
           </div>
           <v-progress-linear color="#FF007F" indeterminate height="10" class="neo-border mt-6"></v-progress-linear>
         </div>
-        <h3 class="text-h4 font-weight-black mb-2 animate-pulse">{{ $t('processing.title') }}</h3>
-        <p class="font-weight-bold text-dark-gray">{{ $t('processing.subtitle') }}</p>
+        <h3 class="font-weight-black mb-2 animate-pulse">{{ $t('processing.title') }}</h3>
+        <p class="font-weight-bold">{{ $t('processing.subtitle') }}</p>
       </div>
     </div>
 
     <!-- Interactive Splitting State -->
     <div v-else-if="state === 'splitting'" class="splitting-state">
-      <div class="d-flex flex-column flex-md-row gap-6">
+      <!-- Top Bar / Navigation -->
+      <div class="d-flex justify-start">
+        <v-btn class="neo-btn navy" @click="newBill">
+          <v-icon class="mr-1">mdi-arrow-left</v-icon> {{ $t('splitting.newBill') }}</v-btn>
+      </div>
+      <div class="d-flex flex-column flex-md-row ga-6">
         <!-- Left Side: Receipt Items list -->
         <div class="flex-grow-1 flex-basis-0 w-100">
-          <div class="neo-card p-6 bg-white height-100">
+          <div class="neo-card">
             <div class="d-flex justify-between align-center mb-6 border-b pb-4">
               <div>
-                <h3 class="text-h5 font-weight-black mb-1">
+                <h4 class="font-weight-black">
                   {{ receiptData.merchantName || $t('splitting.defaultMerchant') }}
-                </h3>
-                <div v-if="receiptData.googleMapsUrl" class="mb-2">
-                  <a :href="receiptData.googleMapsUrl" target="_blank" rel="noopener noreferrer" class="text-decoration-none font-weight-black text-caption d-inline-flex align-center gap-1 map-link" :title="$t('splitting.viewMap')" :aria-label="$t('splitting.viewMap')">
+                </h4>
+                <div v-if="receiptData.googleMapsUrl">
+                  <a :href="receiptData.googleMapsUrl" target="_blank" rel="noopener noreferrer"
+                    class="text-decoration-none font-weight-black text-body-small d-inline-flex align-center ga-1 map-link"
+                    :title="$t('splitting.viewMap')" :aria-label="$t('splitting.viewMap')">
                     <v-icon color="#FF007F" class="map-marker-icon" size="18">mdi-map-marker</v-icon>
                     <span>{{ $t('splitting.viewMap') }}</span>
                   </a>
                 </div>
-                <p class="text-caption text-dark-gray mb-0">
+                <p class="text-body-small">
                   <span v-if="receiptData.date" class="mr-2">📅 {{ receiptData.date }}</span>
                 </p>
               </div>
-              <div>
-                <v-btn class="neo-btn pink" @click="newBill">
-                  <v-icon class="mr-1">mdi-arrow-left</v-icon> {{ $t('splitting.newBill') }}</v-btn>
-              </div>
-
             </div>
 
             <!-- List of Items -->
-            <div class="items-list d-flex flex-column gap-4">
+            <div class="items-list d-flex flex-column ga-4">
               <div v-for="(item, idx) in receiptData.items" :key="idx"
-                class="item-row neo-card p-4 d-flex align-center justify-between transition-all"
+                class="item-row neo-card d-flex align-center justify-between transition-all"
                 :class="{ 'selected-neo-card': selectedQuantities[idx] > 0 }">
                 <!-- Selection Details -->
-                <div class="d-flex align-center gap-4 flex-grow-1">
+                <div class="d-flex align-center ga-4 flex-grow-1">
                   <div>
                     <div class="font-weight-black text-body-1">{{ item.name }}</div>
-                    <div class="text-caption text-dark-gray">
+                    <div class="text-body-small">
                       {{ formatCurrency(item.price, receiptData.currency) }} {{ $t('splitting.each') }} × {{
                         item.quantity }}
-                      <span v-if="item.discount > 0" class="d-block text-pink-color font-weight-bold">
+                      <span v-if="item.discount > 0" class="d-block text-primary font-weight-bold">
                         {{ $t('splitting.itemDiscount') }}: -{{ formatCurrency(item.discount, receiptData.currency) }}
                       </span>
                     </div>
-                    <div class="neo-card d-flex align-center bg-white" style="width: 148px">
+                    <div class="neo-card d-flex align-center" style="width: 148px">
                       <button class="stepper-btn" @click="decrementQty(idx)">-</button>
                       <span class="stepper-val">{{ selectedQuantities[idx] }}</span>
                       <button class="stepper-btn" @click="incrementQty(idx, item.quantity)">+</button>
                     </div>
-                    <div v-if="item.quantity === 1" class="mt-2 d-flex align-center gap-2 flex-wrap">
+                    <div v-if="item.quantity === 1" class="mt-2 d-flex align-center ga-2 flex-wrap">
                       <label class="neo-checkbox-container">
                         <input type="checkbox" v-model="splitSettings[idx].enabled" class="neo-checkbox" />
-                        <span class="font-weight-bold text-caption ml-1">{{ $t('splitting.splitEvenly') }}</span>
+                        <span class="font-weight-bold text-body-small ml-1">{{ $t('splitting.splitEvenly') }}</span>
                       </label>
-                      <div v-if="splitSettings[idx].enabled" class="d-flex align-center gap-1">
-                        <span class="text-caption font-weight-bold ml-1">{{ $t('splitting.into') }}</span>
+                      <div v-if="splitSettings[idx].enabled" class="d-flex align-center ga-1">
+                        <span class="text-body-small font-weight-bold ml-1">{{ $t('splitting.into') }}</span>
                         <input type="number" v-model.number="splitSettings[idx].parts" class="neo-parts-input ml-1"
                           @input="sanitizeParts(idx)" />
-                        <span class="text-caption font-weight-bold ml-1">{{ $t('splitting.parts') }}</span>
+                        <span class="text-body-small font-weight-bold ml-1">{{ $t('splitting.parts') }}</span>
                       </div>
                     </div>
                   </div>
                 </div>
 
-                <div class="d-flex align-center gap-4">
+                <div class="d-flex align-center ga-4">
                   <div class="text-right font-weight-black min-w-80">
-                    <div :class="selectedQuantities[idx] > 0 ? 'text-teal-color' : 'text-dark-gray'">
+                    <div :class="selectedQuantities[idx] > 0 ? 'text-teal-color' : ''">
                       {{ formatCurrency(getItemShare(item, idx).total, receiptData.currency) }}
                     </div>
                   </div>
@@ -165,14 +167,14 @@
         </div>
 
         <div class="flex-grow-1 flex-basis-0 w-100">
-          <div class="neo-card p-6 bg-primary mb-6">
-            <h3 class="text-h4 font-weight-black mb-6 text-center text-white">{{ $t('splitting.yourDebt') }}</h3>
+          <div class="neo-card bg-primary">
+            <h4 class="font-weight-black text-center text-white">{{ $t('splitting.yourDebt') }}</h4>
 
-            <div class="calc-table mb-6">
-              <div class="d-flex justify-between py-2 border-b text-navy font-weight-bold">
+            <div class="mb-6">
+              <div class="d-flex justify-between py-2 border-b font-weight-bold">
                 <span>{{ $t('splitting.itemSubtotal') }}: {{ formatCurrency(calcs.selectedSubtotal,
                   receiptData.currency)
-                  }}</span>
+                }}</span>
               </div>
               <div v-if="calcs.myIndividualDiscount > 0" class="d-flex justify-between py-2 border-b">
                 <span>{{ $t('splitting.itemDiscounts') }}:</span>
@@ -194,50 +196,58 @@
                 <span>{{ $t('splitting.globalDiscount', { rate: (receiptData.discountRate * 100).toFixed(1) }) }}: - {{
                   formatCurrency(calcs.myGlobalDiscount, receiptData.currency) }}</span>
               </div>
-              <div class="d-flex justify-between py-2 border-b align-center text-navy font-weight-black">
-                <span class="text-h5">{{ $t('splitting.meOwe') }} : {{ formatCurrency(calcs.myTotal,
+              <div class="d-flex justify-between py-2 border-b font-weight-black">
+                <span>{{ $t('splitting.meOwe') }} : {{ formatCurrency(calcs.myTotal,
                   receiptData.currency)
-                  }}</span>
+                }}</span>
               </div>
             </div>
 
-            <div class="d-flex flex-column gap-3">
+            <div class="d-flex flex-column ga-3">
               <v-btn class="neo-btn teal font-weight-black w-80" @click="shareDebt">
                 <v-icon class="mr-2">mdi-share</v-icon> {{ $t('splitting.shareMyDebt') }}
               </v-btn>
               <v-btn class="neo-btn font-weight-black w-80" @click="showShareDialog = true">
                 <v-icon class="mr-2">mdi-share-variant</v-icon> {{ $t('splitting.shareBill') }}
               </v-btn>
-              <v-btn class="neo-btn w-80 py-4" @click="resetSplits">
+              <v-btn class="neo-btn w-80 py-4 navy" @click="resetSplits">
                 <v-icon class="mr-2">mdi-restore</v-icon> {{ $t('splitting.resetSelection') }}
               </v-btn>
             </div>
           </div>
 
-          <div class="neo-card p-6 bg-white">
-            <h4 class="text-h6 font-weight-black mb-4">{{ $t('splitting.receiptOverall') }}:</h4>
-            <div class="d-flex justify-between py-1 text-body-2">
-              <span>{{ $t('splitting.itemSubtotal') }}:</span>
-              <span class="font-weight-bold">{{ formatCurrency(receiptData.subtotal, receiptData.currency) }}</span>
-            </div>
-            <div class="d-flex justify-between py-1 text-body-2" v-if="receiptData.serviceCharge > 0">
-              <span>{{ $t('splitting.overallServiceCharge') }}:</span>
-              <span class="font-weight-bold">{{ formatCurrency(receiptData.serviceCharge, receiptData.currency)
+          <!-- RECEIPT OVERALL -->
+          <div class="neo-card" style="margin-top: 48px;">
+            <h4 class="font-weight-black text-center">{{ $t('splitting.receiptOverall') }}</h4>
+            <div class="mb-6">
+              <!-- Subtotal Total -->
+              <div class="d-flex justify-between py-2 border-b">
+                <span>{{ $t('splitting.itemSubtotal') }}: {{ formatCurrency(receiptData.subtotal, receiptData.currency)
                 }}</span>
+              </div>
+              <!-- Service Charge -->
+              <div class="d-flex justify-between py-2 border-b font-weight-bold" v-if="receiptData.serviceCharge > 0">
+                <span>{{ $t('splitting.overallServiceCharge') }}: {{ formatCurrency(receiptData.serviceCharge,
+                  receiptData.currency)
+                }}</span>
+              </div>
+              <!-- Tax -->
+              <div class="d-flex justify-between py-2 border-b">
+                <span>{{ $t('splitting.overallTax') }}: {{ formatCurrency(receiptData.tax, receiptData.currency)
+                }}</span>
+              </div>
+              <!-- Discount -->
+              <div class="d-flex justify-between py-2 border-b" v-if="receiptData.discount > 0">
+                <span>{{ $t('splitting.overallGlobalDiscount') }}: {{ formatCurrency(receiptData.discount,
+                  receiptData.currency) }}</span>
+              </div>
+              <!-- Grand Total -->
+              <div class="d-flex justify-between py-2 font-weight-black">
+                <span>{{ $t('splitting.grandTotal') }}: {{ formatCurrency(receiptData.total, receiptData.currency)
+                }}</span>
+              </div>
             </div>
-            <!-- Always show tax even if it is 0 -->
-            <div class="d-flex justify-between py-1 text-body-2">
-              <span>{{ $t('splitting.overallTax') }}:</span>
-              <span class="font-weight-bold">{{ formatCurrency(receiptData.tax, receiptData.currency) }}</span>
-            </div>
-            <div class="d-flex justify-between py-1 text-body-2" v-if="receiptData.discount > 0">
-              <span>{{ $t('splitting.overallGlobalDiscount') }}:</span>
-              <span class="font-weight-bold">{{ formatCurrency(receiptData.discount, receiptData.currency) }}</span>
-            </div>
-            <div class="d-flex justify-between py-2 mt-2 border-t font-weight-black">
-              <span>{{ $t('splitting.grandTotal') }}:</span>
-              <span>{{ formatCurrency(receiptData.total, receiptData.currency) }}</span>
-            </div>
+
           </div>
         </div>
       </div>
@@ -808,9 +818,7 @@ watch(
   max-width: 600px;
 }
 
-.max-width-500 {
-  max-width: 500px;
-}
+
 
 /* Button grids */
 .buttons-grid {
@@ -951,13 +959,7 @@ watch(
   min-width: 80px;
 }
 
-.bg-navy-light {
-  background-color: #F8FAFC;
-}
 
-.text-pink-color {
-  color: var(--color-pink);
-}
 
 .text-teal-color {
   color: #0E9080;
@@ -965,10 +967,6 @@ watch(
 }
 
 /* Quantity stepper */
-.stepper {
-  height: 40px;
-}
-
 .stepper-btn {
   width: 48px;
   height: 100%;

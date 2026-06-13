@@ -3,7 +3,7 @@
     <!-- Neubrutalist Header -->
     <header class="neo-header">
       <div class="header-content">
-        <NuxtLink to="/" class="text-decoration-none d-flex align-center">
+        <NuxtLink to="/" class="text-decoration-none text-black d-flex align-center">
           <h1 class="header-title">
             <div class="header-actions mr-2">
               <div class="neo-btn pink"
@@ -27,23 +27,23 @@
       </v-container>
     </v-main>
 
-    <div class="d-flex flex-column flex-sm-row align-center justify-center gap-4 mt-10 mb-16 px-4">
-      <div class="neo-card p-4 d-flex align-center gap-4" style="max-width: 450px; width: 100%;">
+    <div class="d-flex flex-column flex-sm-row align-center justify-center ga-4 mt-10 mb-16 px-4">
+      <div class="neo-card d-flex align-center ga-4" style="max-width: 450px; width: 100%;">
         <v-icon color="#FF007F" size="32">mdi-heart</v-icon>
         <NuxtLink to="/support" class="ml-4 text-decoration-none text-black">
           <div class="font-weight-black">{{ $t('support.supportTitle') }}</div>
-          <div class="text-caption">{{ $t('support.supportSubtitle1') }}</div>
-          <div class="text-caption">{{ $t('support.supportSubtitle2') }}</div>
+          <div class="text-body-small">{{ $t('support.supportSubtitle1') }}</div>
+          <div class="text-body-small">{{ $t('support.supportSubtitle2') }}</div>
         </NuxtLink>
       </div>
 
-      <div class="neo-card p-4 d-flex align-center gap-4" style="max-width: 450px; width: 100%;">
+      <div class="neo-card d-flex align-center ga-4" style="max-width: 450px; width: 100%;">
         <v-icon color="#00F5D4" size="32">mdi-code-json</v-icon>
         <a href="/?bill=eyJtZXJjaGFudE5hbWUiOiJKb25hdGhhbiIsImRhdGUiOiIyMDI2LTA2LTAxIiwiY3VycmVuY3kiOiJSTSIsIml0ZW1zIjpbeyJuYW1lIjoiRGV2ZWxvcG1lbnQgQ29zdCIsInF1YW50aXR5IjoxLCJwcmljZSI6OTh9LHsibmFtZSI6IlJlY2VpcHQgcHJvY2Vzc2luZyIsInF1YW50aXR5Ijo5OTk5OSwicHJpY2UiOjAuMDJ9LHsibmFtZSI6IldlYiBzZXJ2ZXIgcGVyIHByb2Nlc3MiLCJxdWFudGl0eSI6OTk5OTksInByaWNlIjowLjAxfSx7Im5hbWUiOiJNaWxrIHRlYSBkdXJpbmcgZGV2ZWxvcG1lbnQiLCJxdWFudGl0eSI6MSwicHJpY2UiOjcuOTB9XSwidGF4IjowLCJpc1RheEluSXRlbSI6ZmFsc2UsInNlcnZpY2VDaGFyZ2UiOjAsImRpc2NvdW50IjowLCJzdWJ0b3RhbCI6MTAwLCJ0b3RhbCI6MTA3LjkwLCJ0YXhSYXRlIjowLCJzZXJ2aWNlQ2hhcmdlUmF0ZSI6MCwiZGlzY291bnRSYXRlIjowfQ=="
           class="ml-4 text-decoration-none text-black">
           <div class="font-weight-black">{{ $t('support.costTitle') }}</div>
-          <div class="text-caption">{{ $t('support.costSubtitle1') }}</div>
-          <div class="text-caption">{{ $t('support.costSubtitle2') }}</div>
+          <div class="text-body-small">{{ $t('support.costSubtitle1') }}</div>
+          <div class="text-body-small">{{ $t('support.costSubtitle2') }}</div>
         </a>
       </div>
     </div>
@@ -52,24 +52,24 @@
       style="background-color: var(--color-bg); border-top: var(--border-width) solid var(--color-navy); max-height: 128px;">
       <v-container>
         <v-row class="mb-4">
-          <v-col cols="12" md="4">
+          <v-col cols="12" md="4" style="height:32px">
             <p>[
-              <v-btn variant="text" size="small" href="https://jonathanlawhh.com/" target="_blank">
+              <v-btn variant="text" href="https://jonathanlawhh.com/" target="_blank">
                 <strong>Jonathan Law Hui Hao</strong>
               </v-btn>
               ]
             </p>
           </v-col>
-          <v-col cols="12" md="8">
+          <v-col cols="12" md="8" style="height:32px">
             <p class="text-right">
               [
-              <v-btn variant="text" size="small" href="https://jonathanlawhh.com/works/ai/" target="_blank">{{
+              <v-btn variant="text" href="https://jonathanlawhh.com/works/ai/" target="_blank">{{
                 $t('footer.otherProjects') }}</v-btn>
               ,
-              <v-btn variant="text" size="small" href="https://github.com/jonathanlawhh/bill-splitter"
-                target="_blank">{{ $t('footer.github') }}</v-btn>
+              <v-btn variant="text" href="https://github.com/jonathanlawhh/bill-splitter" target="_blank">{{
+                $t('footer.github') }}</v-btn>
               ,
-              <v-btn variant="text" size="small" href="https://jonathanlawhh.medium.com/" target="_blank">{{
+              <v-btn variant="text" href="https://jonathanlawhh.medium.com/" target="_blank">{{
                 $t('footer.blog') }}</v-btn>
               ]
             </p>
@@ -80,14 +80,14 @@
 
     <!-- Settings Dialog -->
     <v-dialog v-model="showSettings" max-width="500px">
-      <div class="neo-card p-6">
-        <div class="dialog-header d-flex justify-between align-center mb-6">
-          <h2 class="text-h5 font-weight-black">{{ $t('header.settings') }}</h2>
+      <div class="neo-card">
+        <div class="dialog-header d-flex justify-between align-center">
+          <h4 class="font-weight-black">{{ $t('header.settings') }}</h4>
           <v-btn icon="mdi-close" variant="text" @click="showSettings = false"></v-btn>
         </div>
         <div class="mb-6">
           <label class="d-block font-weight-bold mb-2">Language / 语言</label>
-          <div class="d-flex gap-2">
+          <div class="d-flex ga-2">
             <v-btn class="neo-btn" :class="{ teal: locale === 'en' }" @click="setLocale('en')"
               style="min-height: 48px; height: 48px; flex: 1;">English</v-btn>
             <v-btn class="neo-btn" :class="{ teal: locale === 'zh' }" @click="setLocale('zh')"
@@ -97,7 +97,7 @@
         <div class="mb-4">
           <label class="d-block font-weight-bold mb-2">{{ $t('header.geminiApiKey') }}</label>
           <input v-model="apiKey" type="password" placeholder="AIzaSy..." class="neo-input" />
-          <p class="text-caption mt-2 text-dark-gray">
+          <p class="text-body-small mt-2 text-dark-gray">
             {{ $t('header.apiKeyCaption') }}
           </p>
         </div>
@@ -106,25 +106,27 @@
         <div class="mb-6 pwa-settings-section">
           <label class="d-block font-weight-bold mb-2">{{ $t('pwa.installSection') }}</label>
           <div v-if="deferredPrompt">
-            <v-btn class="neo-btn pink w-100 mx-0 my-2 d-flex align-center justify-center gap-2" style="min-height: 52px; height: 52px; margin: 8px 0 !important;" @click="triggerInstall">
+            <v-btn class="neo-btn pink w-100 mx-0 my-2 d-flex align-center justify-center ga-2"
+              style="min-height: 52px; height: 52px; margin: 8px 0 !important;" @click="triggerInstall">
               <v-icon class="mr-2">mdi-download</v-icon>
               {{ $t('pwa.installBtn') }}
             </v-btn>
           </div>
           <div v-else-if="isAppInstalled">
-            <div class="d-flex align-center gap-2 text-teal font-weight-bold p-3 neo-border w-100" style="background-color: var(--color-gray); border-radius: 12px;">
+            <div class="d-flex align-center ga-2 text-teal font-weight-bold neo-border w-100"
+              style="background-color: var(--color-gray); border-radius: 12px;">
               <v-icon color="#00F5D4" class="mr-2">mdi-check-decagram</v-icon>
               <span>{{ $t('pwa.alreadyInstalled') }}</span>
             </div>
           </div>
           <div v-else>
-            <p class="text-caption text-dark-gray mb-0">
+            <p class="text-body-small text-dark-gray mb-0">
               {{ $t('pwa.notSupported') }}
             </p>
           </div>
         </div>
 
-        <div class="d-flex justify-end gap-2 mt-6">
+        <div class="d-flex justify-end ga-2 mt-6">
           <v-btn class="neo-btn navy px-6" @click="saveSettings" :disabled="apiKey.length > 0 && apiKey.length < 11">
             {{ $t('header.saveSettings') }}
           </v-btn>
@@ -133,28 +135,32 @@
     </v-dialog>
 
     <!-- Floating Install Banner -->
-    <div v-if="showInstallBanner && deferredPrompt" class="neo-card install-banner p-4">
-      <div class="d-flex align-start gap-2">
+    <div v-if="showInstallBanner && deferredPrompt" class="neo-card install-banner">
+      <div class="d-flex align-start ga-2">
         <div class="flex-grow-1">
-          <div class="d-flex align-center gap-2 mb-2">
+          <div class="d-flex align-center ga-2 mb-2">
             <div class="neo-badge">PWA</div>
             <h3 class="text-subtitle-1 font-weight-black m-0" style="font-size: 1.1rem; line-height: 1.2;">
               {{ $t('pwa.bannerTitle') }}
             </h3>
           </div>
-          <p class="text-body-2 mb-4 text-dark-gray" style="font-size: 0.9rem; line-height: 1.4; margin-bottom: 16px !important;">
+          <p class="text-body-2 mb-4 text-dark-gray"
+            style="font-size: 0.9rem; line-height: 1.4; margin-bottom: 16px !important;">
             {{ $t('pwa.bannerText') }}
           </p>
-          <div class="d-flex gap-2">
-            <v-btn class="neo-btn pink mx-0 my-0 px-4 py-2" style="min-height: 44px; height: 44px; flex: 1; margin: 0 !important;" @click="triggerInstall">
+          <div class="d-flex ga-2">
+            <v-btn class="neo-btn pink mx-0 my-0 px-4 py-2"
+              style="min-height: 44px; height: 44px; flex: 1; margin: 0 !important;" @click="triggerInstall">
               {{ $t('pwa.installBtn') }}
             </v-btn>
-            <v-btn class="neo-btn mx-0 my-0 px-4 py-2" style="min-height: 44px; height: 44px; flex: 1; margin: 0 !important;" @click="dismissBanner">
+            <v-btn class="neo-btn mx-0 my-0 px-4 py-2"
+              style="min-height: 44px; height: 44px; flex: 1; margin: 0 !important;" @click="dismissBanner">
               {{ $t('pwa.dismissBtn') }}
             </v-btn>
           </div>
         </div>
-        <v-btn icon="mdi-close" variant="text" size="small" class="ml-2 mt-n1" @click="dismissBanner" aria-label="Close"></v-btn>
+        <v-btn icon="mdi-close" variant="text" size="small" class="ml-2 mt-n1" @click="dismissBanner"
+          aria-label="Close"></v-btn>
       </div>
     </div>
 
@@ -220,14 +226,14 @@ const checkInstalledState = () => {
 
 const triggerInstall = async () => {
   if (!deferredPrompt.value) return
-  
+
   // Show the install prompt
   deferredPrompt.value.prompt()
-  
+
   // Wait for the user to respond to the prompt
   const { outcome } = await deferredPrompt.value.userChoice
   console.log(`User response to the install prompt: ${outcome}`)
-  
+
   // We've used the prompt, and can't use it again, discard it
   deferredPrompt.value = null
   showInstallBanner.value = false
@@ -250,7 +256,7 @@ onMounted(() => {
     e.preventDefault()
     // Stash the event so it can be triggered later.
     deferredPrompt.value = e
-    
+
     // Only show banner if not already dismissed and not already installed
     if (!isDismissed && !isAppInstalled.value) {
       showInstallBanner.value = true
