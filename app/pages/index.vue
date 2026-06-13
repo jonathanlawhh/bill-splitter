@@ -263,6 +263,8 @@ import { ref, computed, inject, onBeforeUnmount, watch, onMounted, nextTick } fr
 import { formatCurrency, fileToBase64, safeBtoa, safeAtob, saveBillToHistory } from '~/utils/helpers'
 
 const { t } = useI18n()
+const route = useRoute()
+const router = useRouter()
 
 
 const state = ref('landing') // 'landing' | 'camera' | 'processing' | 'splitting'
@@ -505,7 +507,6 @@ const resetSplits = () => {
 
 // Reset bill state and clear query params
 const newBill = () => {
-  const router = useRouter()
   router.replace({
     query: {
       ...route.query,
@@ -554,28 +555,18 @@ const getItemShare = (item, idx) => {
 
 const sanitizeParts = (idx) => {
   if (splitSettings.value[idx]) {
-    let val = parseInt(splitSettings.value[idx].parts, 10)
+    const val = parseInt(splitSettings.value[idx].parts, 10)
     if (isNaN(val)) {
       splitSettings.value[idx].parts = 0
     } else {
       splitSettings.value[idx].parts = val
-      if (val >= 2) {
-        if (firstCustomizedIdx.value === null) {
-          firstCustomizedIdx.value = idx
-          defaultSplitParts.value = val
-          // Update all other non-enabled items to use this new default parts
-          for (const i in splitSettings.value) {
-            if (String(i) !== String(idx) && !splitSettings.value[i].enabled) {
-              splitSettings.value[i].parts = val
-            }
-          }
-        } else if (firstCustomizedIdx.value === idx) {
-          defaultSplitParts.value = val
-          // Keep updating other non-enabled items in case of correction
-          for (const i in splitSettings.value) {
-            if (String(i) !== String(idx) && !splitSettings.value[i].enabled) {
-              splitSettings.value[i].parts = val
-            }
+      if (val >= 2 && (firstCustomizedIdx.value === null || firstCustomizedIdx.value === idx)) {
+        firstCustomizedIdx.value = idx
+        defaultSplitParts.value = val
+        // Update all other non-enabled items to use this new default parts
+        for (const i in splitSettings.value) {
+          if (String(i) !== String(idx) && !splitSettings.value[i].enabled) {
+            splitSettings.value[i].parts = val
           }
         }
       }
@@ -592,11 +583,9 @@ const calcs = computed(() => {
   let myIndividualServiceCharge = 0
   let myGlobalDiscount = 0
 
-  let receiptItemSubtotal = 0
   const selectedItemBreakdown = []
   for (let i = 0; i < items.length; i++) {
     const item = items[i]
-    receiptItemSubtotal += item.price * item.quantity
 
     const share = getItemShare(item, i)
     if (share.quantity > 0) {
@@ -626,10 +615,6 @@ const calcs = computed(() => {
     }
   }
 
-  const tax = receiptData.value?.tax || 0
-  const serviceCharge = receiptData.value?.serviceCharge || 0
-  const myTax = tax
-  const myServiceCharge = serviceCharge
   const myTotal = myItemSubtotal - myIndividualDiscount + myIndividualTax + myIndividualServiceCharge - myGlobalDiscount
 
   return {
@@ -637,9 +622,6 @@ const calcs = computed(() => {
     myIndividualDiscount,
     myIndividualTax,
     myIndividualServiceCharge,
-    receiptItemSubtotal,
-    myTax,
-    myServiceCharge,
     myGlobalDiscount,
     myTotal,
     selectedItemBreakdown
@@ -762,7 +744,6 @@ const shareBill = async (withPresets = false) => {
 }
 
 // Load shared bill if ?bill=XXX parameter is present or changes
-const route = useRoute()
 watch(
   () => route.query.bill,
   (billParam) => {
