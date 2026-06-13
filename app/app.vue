@@ -303,7 +303,13 @@ onMounted(() => {
 })
 
 const saveSettings = () => {
-  localStorage.setItem('gemini_api_key', apiKey.value)
+  if (!apiKey.value) {
+    if (localStorage.getItem('gemini_api_key')) {
+      localStorage.removeItem('gemini_api_key')
+    }
+  } else {
+    localStorage.setItem('gemini_api_key', apiKey.value)
+  }
   showSettings.value = false
   showNotification(t('notifications.settingsSaved'))
 }

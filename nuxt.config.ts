@@ -35,7 +35,6 @@ export default defineNuxtConfig({
   i18n: {
     strategy: 'no_prefix',
     defaultLocale: 'en',
-    lazy: true,
     langDir: 'locales/',
     locales: [
       {
@@ -49,6 +48,11 @@ export default defineNuxtConfig({
         file: 'zh.json'
       }
     ],
+    detectBrowserLanguage: {
+      useCookie: true,
+      cookieKey: 'i18n_redirected',
+      alwaysRedirect: true
+    },
     vueI18n: './i18n.config.ts'
   },
 
