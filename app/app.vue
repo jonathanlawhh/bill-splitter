@@ -88,9 +88,9 @@
         <div class="mb-6">
           <label class="d-block font-weight-bold mb-2">Language / 语言</label>
           <div class="d-flex ga-2">
-            <v-btn class="neo-btn" :class="{ teal: locale === 'en' }" @click="setLocale('en')"
+            <v-btn class="neo-btn" :class="{ teal: locale === 'en' }" @click="changeLanguage('en')"
               style="min-height: 48px; height: 48px; flex: 1;">English</v-btn>
-            <v-btn class="neo-btn" :class="{ teal: locale === 'zh' }" @click="setLocale('zh')"
+            <v-btn class="neo-btn" :class="{ teal: locale === 'zh' }" @click="changeLanguage('zh')"
               style="min-height: 48px; height: 48px; flex: 1;">中文</v-btn>
           </div>
         </div>
@@ -302,6 +302,23 @@ onMounted(() => {
   }
 })
 
+const clearCache = () => {
+  if (typeof window !== 'undefined' && 'caches' in window) {
+    caches.keys().then((names) => {
+      for (const name of names) {
+        caches.delete(name)
+      }
+    }).catch((err) => {
+      console.error('Failed to clear cache:', err)
+    })
+  }
+}
+
+const changeLanguage = (lang) => {
+  setLocale(lang)
+  clearCache()
+}
+
 const saveSettings = () => {
   if (!apiKey.value) {
     if (localStorage.getItem('gemini_api_key')) {
@@ -310,6 +327,7 @@ const saveSettings = () => {
   } else {
     localStorage.setItem('gemini_api_key', apiKey.value)
   }
+  clearCache()
   showSettings.value = false
   showNotification(t('notifications.settingsSaved'))
 }
