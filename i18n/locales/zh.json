@@ -15,7 +15,14 @@
     "supportSubtitle2": "2 马币可处理 50 张账单",
     "costTitle": "开发成本明细",
     "costSubtitle1": "查看制作此应用的成本",
-    "costSubtitle2": "希望这能让你感到愧疚从而正确使用它..."
+    "costSubtitle2": "希望这能让你感到愧疚从而正确使用它...",
+    "title": "支持",
+    "desc": "AI 并不靠水运行。帮忙付服务器费用，或者请喝奶茶。",
+    "stripe": "Stripe (国际信用卡)",
+    "stripeDesc": "使用 Stripe 信用卡或借记卡支付。",
+    "stripeBtn": "使用 STRIPE 支付",
+    "grabDesc": "直接打开 Grab 应用付款。",
+    "grabBtn": "GRABPAY"
   },
   "footer": {
     "otherProjects": "其他项目",

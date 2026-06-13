@@ -15,7 +15,14 @@
     "supportSubtitle2": "MYR 2 will process 50 bills",
     "costTitle": "Development Cost Breakdown",
     "costSubtitle1": "See the cost of making this app",
-    "costSubtitle2": "If it can guilt trip you into using it properly..."
+    "costSubtitle2": "If it can guilt trip you into using it properly...",
+    "title": "Support",
+    "desc": "AI not run on water. Help pay server, buy milk tea.",
+    "stripe": "Stripe (International Card)",
+    "stripeDesc": "Pay with Stripe credit/debit card.",
+    "stripeBtn": "PAY WITH STRIPE",
+    "grabDesc": "Open Grab app directly to pay.",
+    "grabBtn": "GRABPAY"
   },
   "footer": {
     "otherProjects": "Other Projects",

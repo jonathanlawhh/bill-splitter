@@ -30,12 +30,11 @@
     <div class="d-flex flex-column flex-sm-row align-center justify-center gap-4 mt-10 mb-16 px-4">
       <div class="neo-card p-4 d-flex align-center gap-4" style="max-width: 450px; width: 100%;">
         <v-icon color="#FF007F" size="32">mdi-heart</v-icon>
-        <a href="https://donate.stripe.com/9B6eVe3cYfsLftl03WejK00" class="ml-4 text-decoration-none text-black"
-          target="_blank">
+        <NuxtLink to="/support" class="ml-4 text-decoration-none text-black">
           <div class="font-weight-black">{{ $t('support.supportTitle') }}</div>
           <div class="text-caption">{{ $t('support.supportSubtitle1') }}</div>
           <div class="text-caption">{{ $t('support.supportSubtitle2') }}</div>
-        </a>
+        </NuxtLink>
       </div>
 
       <div class="neo-card p-4 d-flex align-center gap-4" style="max-width: 450px; width: 100%;">
