@@ -42,9 +42,8 @@
     "noApiKeyText": "请在设置（右上角）中提供您的密钥，以便开发者能买得起奶茶"
   },
   "camera": {
-    "title": "拍张照片",
     "cancel": "取消",
-    "capture": "拍摄照片"
+    "capture": "拍照"
   },
   "processing": {
     "title": "处理中...",

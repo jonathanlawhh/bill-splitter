@@ -3,7 +3,7 @@
     <div class="d-flex flex-column ga-6">
 
       <!-- Top Bar / Navigation -->
-      <div class="d-flex flex-column flex-sm-row justify-between align-center ga-4">
+      <div class="d-flex flex-column flex-sm-row justify-between ga-4">
         <div>
           <v-btn class="neo-btn navy" to="/" id="back-home-btn">
             <v-icon class="mr-2">mdi-arrow-left</v-icon> {{ $t('history.back') }}

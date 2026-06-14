@@ -53,20 +53,17 @@
 
     <!-- WebRTC In-App Camera View -->
     <div v-else-if="state === 'camera'" class="camera-state neo-card">
-      <div class="d-flex justify-between align-center mb-4">
-        <h3 class="font-weight-black">{{ $t('camera.title') }}</h3>
-        <v-btn class="neo-btn navy" @click="stopCamera">{{ $t('camera.cancel') }}</v-btn>
-      </div>
-
       <div class="video-container neo-border mb-6">
         <video ref="videoElement" autoplay playsinline class="w-100 h-100"></video>
         <div class="scanline"></div>
       </div>
-
-      <div class="d-flex justify-center ga-4">
-        <v-btn class="neo-btn teal px-8 py-4" @click="captureFrame">
-          <v-icon class="mr-2">mdi-camera-iris</v-icon> {{ $t('camera.capture') }}
-        </v-btn>
+      <div>
+        <div class="d-flex flex-row-reverse flex-wrap">
+          <v-btn class="neo-btn teal" @click="captureFrame">
+            <v-icon class="mr-2">mdi-camera-iris</v-icon> {{ $t('camera.capture') }}
+          </v-btn>
+          <v-btn class="neo-btn navy" @click="stopCamera">{{ $t('camera.cancel') }}</v-btn>
+        </div>
       </div>
       <canvas ref="canvasElement" class="d-none"></canvas>
     </div>
@@ -93,6 +90,8 @@
       <div class="d-flex justify-start">
         <v-btn class="neo-btn navy" @click="newBill">
           <v-icon class="mr-1">mdi-arrow-left</v-icon> {{ $t('splitting.newBill') }}</v-btn>
+        <v-btn class="neo-btn pink" to="history">
+          <v-icon class="mr-1">mdi-history</v-icon>{{ $t('header.history') }}</v-btn>
       </div>
       <div class="d-flex flex-column flex-md-row ga-6">
         <!-- Left Side: Receipt Items list -->
@@ -854,6 +853,7 @@ watch(
 .video-container {
   position: relative;
   width: 100%;
+  min-height: 320px;
   max-height: 480px;
   background-color: #000;
   overflow: hidden;

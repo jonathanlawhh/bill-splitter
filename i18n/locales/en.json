@@ -42,9 +42,8 @@
     "noApiKeyText": "Provide your key in Settings (top-right) so the developer can afford his own milk-tea"
   },
   "camera": {
-    "title": "SNAPPY SNAPPY",
     "cancel": "Cancel",
-    "capture": "Capture Photo"
+    "capture": "Capture"
   },
   "processing": {
     "title": "PROCESSING...",
