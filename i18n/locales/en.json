@@ -81,7 +81,13 @@
     "overallTax": "Receipt Tax",
     "overallGlobalDiscount": "Total Discount",
     "grandTotal": "Grand Total",
-    "viewMap": "View on Google Map"
+    "viewMap": "View on Google Map",
+    "calcSettings": "Bill Settings",
+    "calcSettingsTitle": "I feel generous",
+    "calcSettingsDesc": "In share bill, I pay for",
+    "excludeDiscount": "Discount",
+    "excludeTax": "Tax",
+    "excludeServiceCharge": "Service Charge"
   },
   "history": {
     "back": "Back to Splitter",

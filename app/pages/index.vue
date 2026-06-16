@@ -113,6 +113,11 @@
                 <p class="text-body-small">
                   <span v-if="receiptData.date" class="mr-2">📅 {{ receiptData.date }}</span>
                 </p>
+                <div class="mt-2">
+                  <v-btn class="neo-btn neo-btn-sm teal" @click="showCalcSettingsDialog = true">
+                    <v-icon class="mr-1" size="16">mdi-cog</v-icon>{{ $t('splitting.calcSettings') }}
+                  </v-btn>
+                </div>
               </div>
             </div>
 
@@ -180,18 +185,18 @@
                 <span class="ml-1">- {{ formatCurrency(calcs.myIndividualDiscount, receiptData.currency) }}</span>
               </div>
               <!-- Always show Tax Share even if it is 0 -->
-              <div class="d-flex justify-between py-2 border-b">
+              <div class="d-flex justify-between py-2 border-b" v-if="receiptData.isSharedTax !== false">
                 <span>{{ $t('splitting.taxShare', { rate: (receiptData.taxRate * 100).toFixed(1) }) }}: </span>
                 <span v-if="!receiptData.isTaxInItem">+ {{ formatCurrency(calcs.myIndividualTax, receiptData.currency)
                 }}</span>
                 <span class="ml-1" v-if="receiptData.isTaxInItem">{{ $t('splitting.taxIncluded') }}</span>
               </div>
-              <div class="d-flex justify-between py-2 border-b" v-if="receiptData.serviceCharge > 0">
+              <div class="d-flex justify-between py-2 border-b" v-if="receiptData.serviceCharge > 0 && receiptData.isSharedServiceCharge !== false">
                 <span>{{ $t('splitting.serviceCharge', { rate: (receiptData.serviceChargeRate * 100).toFixed(1) }) }}: +
                   {{
                     formatCurrency(calcs.myIndividualServiceCharge, receiptData.currency) }}</span>
               </div>
-              <div class="d-flex justify-between py-2 border-b" v-if="receiptData.discount > 0">
+              <div class="d-flex justify-between py-2 border-b" v-if="receiptData.discount > 0 && receiptData.isSharedDiscount !== false">
                 <span>{{ $t('splitting.globalDiscount', { rate: (receiptData.discountRate * 100).toFixed(1) }) }}: - {{
                   formatCurrency(calcs.myGlobalDiscount, receiptData.currency) }}</span>
               </div>
@@ -252,6 +257,38 @@
       </div>
     </div>
 
+    <!-- Calculation Settings Dialog -->
+    <v-dialog v-model="showCalcSettingsDialog" max-width="500px">
+      <div class="neo-card">
+        <!-- Header -->
+        <div class="d-flex justify-between align-center mb-4">
+          <h4 class="font-weight-black">{{ $t('splitting.calcSettingsTitle') }}</h4>
+          <v-btn icon="mdi-close" variant="text" @click="showCalcSettingsDialog = false" aria-label="Close"></v-btn>
+        </div>
+
+        <p class="font-weight-bold mb-6 text-dark-gray">
+          {{ $t('splitting.calcSettingsDesc') }}
+        </p>
+
+        <div class="d-flex flex-column ga-4">
+          <label class="neo-checkbox-container d-flex align-center py-2">
+            <input type="checkbox" v-model="receiptData.isSharedDiscount" :true-value="false" :false-value="true" class="neo-checkbox" />
+            <span class="font-weight-bold ml-3 text-body-1">{{ $t('splitting.excludeDiscount') }}</span>
+          </label>
+
+          <label class="neo-checkbox-container d-flex align-center py-2">
+            <input type="checkbox" v-model="receiptData.isSharedTax" :true-value="false" :false-value="true" class="neo-checkbox" />
+            <span class="font-weight-bold ml-3 text-body-1">{{ $t('splitting.excludeTax') }}</span>
+          </label>
+
+          <label class="neo-checkbox-container d-flex align-center py-2">
+            <input type="checkbox" v-model="receiptData.isSharedServiceCharge" :true-value="false" :false-value="true" class="neo-checkbox" />
+            <span class="font-weight-bold ml-3 text-body-1">{{ $t('splitting.excludeServiceCharge') }}</span>
+          </label>
+        </div>
+      </div>
+    </v-dialog>
+
     <!-- Share Bill Options Dialog -->
     <ShareBillDialog v-model="showShareDialog" @select="shareBill" />
   </div>
@@ -284,13 +321,17 @@ const receiptData = ref({
   discount: 0,
   subtotal: 0,
   total: 0,
-  googleMapsUrl: ''
+  googleMapsUrl: '',
+  isSharedTax: true,
+  isSharedDiscount: true,
+  isSharedServiceCharge: true
 })
 const selectedQuantities = ref({}) // idx -> quantity
 const splitSettings = ref({}) // idx -> { enabled: boolean, parts: number }
 const defaultSplitParts = ref(2)
 const firstCustomizedIdx = ref(null)
 const showShareDialog = ref(false)
+const showCalcSettingsDialog = ref(false)
 
 // Global injected values from app.vue
 const globalApiKey = inject('globalApiKey', ref(''))
@@ -435,7 +476,12 @@ const processReceipt = async (base64Str) => {
     })
 
     if (response.success && response.data) {
-      receiptData.value = response.data
+      receiptData.value = {
+        ...response.data,
+        isSharedTax: true,
+        isSharedDiscount: true,
+        isSharedServiceCharge: true
+      }
 
       // Initialize checklist quantities to 0
       selectedQuantities.value = {}
@@ -524,7 +570,10 @@ const newBill = () => {
     discount: 0,
     subtotal: 0,
     total: 0,
-    googleMapsUrl: ''
+    googleMapsUrl: '',
+    isSharedTax: true,
+    isSharedDiscount: true,
+    isSharedServiceCharge: true
   }
   clearSelections()
 }
@@ -589,10 +638,16 @@ const calcs = computed(() => {
     const share = getItemShare(item, i)
     if (share.quantity > 0) {
       const itemCost = share.cost
-      const itemDiscount = share.discount
-      const itemTax = itemCost * (receiptData.value?.taxRate || 0)
-      const itemServiceCharge = itemCost * (receiptData.value?.serviceChargeRate || 0)
-      const itemGlobalDiscount = itemCost * (receiptData.value?.discountRate || 0)
+      const itemDiscount = receiptData.value?.isSharedDiscount !== false ? share.discount : 0
+      const itemTax = receiptData.value?.isSharedTax !== false
+        ? itemCost * (receiptData.value?.taxRate || 0)
+        : 0
+      const itemServiceCharge = receiptData.value?.isSharedServiceCharge !== false
+        ? itemCost * (receiptData.value?.serviceChargeRate || 0)
+        : 0
+      const itemGlobalDiscount = receiptData.value?.isSharedDiscount !== false
+        ? itemCost * (receiptData.value?.discountRate || 0)
+        : 0
 
       myItemSubtotal += itemCost
       myIndividualDiscount += itemDiscount
@@ -752,7 +807,12 @@ watch(
         if (decodedJson) {
           const data = JSON.parse(decodedJson)
           if (data && data.items) {
-            receiptData.value = data
+            receiptData.value = {
+              ...data,
+              isSharedTax: data.isSharedTax !== false,
+              isSharedDiscount: data.isSharedDiscount !== false,
+              isSharedServiceCharge: data.isSharedServiceCharge !== false
+            }
             // Initialize checklist quantities to 0
             selectedQuantities.value = {}
             splitSettings.value = {}
@@ -1039,5 +1099,23 @@ watch(
 
 .map-link:hover .map-marker-icon {
   color: var(--color-teal) !important;
+}
+
+.neo-btn-sm {
+  min-height: 36px !important;
+  height: 36px !important;
+  font-size: 0.75rem !important;
+  padding: 0 12px !important;
+  margin: 4px 0 !important;
+  border-width: 2px !important;
+  box-shadow: 3px 3px 0px 0px var(--color-navy) !important;
+}
+.neo-btn-sm:hover {
+  transform: translate(-1px, -1px) !important;
+  box-shadow: 4px 4px 0px 0px var(--color-navy) !important;
+}
+.neo-btn-sm:active {
+  transform: translate(1px, 1px) !important;
+  box-shadow: 2px 2px 0px 0px var(--color-navy) !important;
 }
 </style>
