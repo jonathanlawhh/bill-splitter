@@ -22,7 +22,9 @@
     "stripeDesc": "Pay with Stripe credit/debit card.",
     "stripeBtn": "PAY WITH STRIPE",
     "grabDesc": "Open Grab app directly to pay.",
-    "grabBtn": "GRABPAY"
+    "grabBtn": "GRABPAY",
+    "paypalDesc": "Pay with PayPal link.",
+    "paypalBtn": "PAYPAL"
   },
   "footer": {
     "otherProjects": "Other Projects",

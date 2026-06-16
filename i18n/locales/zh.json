@@ -22,7 +22,9 @@
     "stripeDesc": "使用 Stripe 信用卡或借记卡支付。",
     "stripeBtn": "使用 STRIPE 支付",
     "grabDesc": "直接打开 Grab 应用付款。",
-    "grabBtn": "GRABPAY"
+    "grabBtn": "GRABPAY",
+    "paypalDesc": "使用 PayPal 链接付款。",
+    "paypalBtn": "PAYPAL"
   },
   "footer": {
     "otherProjects": "其他项目",

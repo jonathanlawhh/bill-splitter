@@ -44,6 +44,26 @@
             </div>
           </div>
 
+          <!-- PayPal Card -->
+          <div class="neo-card flex-grow-1 flex-basis-0 d-flex flex-column hover-paypal ga-4">
+            <div>
+              <div class="d-flex align-center">
+                <img src="/logo/logo-paypal.svg" alt="PayPal" style="height: 36px; display: block;" />
+              </div>
+              <div>
+                <p class="text-body-1 font-weight-bold mb-0">
+                  {{ $t('support.paypalDesc') }}
+                </p>
+              </div>
+            </div>
+            <div class="d-flex flex-column ga-3">
+              <v-btn class="neo-btn paypal d-flex align-center justify-center ga-2"
+                href="https://www.paypal.com/paypalme/jonathanlawhh" target="_blank" id="paypal-btn">
+                {{ $t('support.paypalBtn') }} <v-icon class="ml-2">mdi-open-in-new</v-icon>
+              </v-btn>
+            </div>
+          </div>
+
           <!-- Stripe Card -->
           <!-- <div
             class="payment-option neo-card flex-grow-1 flex-basis-0 d-flex flex-column justify-between ga-6 hover-pink">
@@ -108,6 +128,16 @@ useHead({
 .hover-grab:hover {
   border-color: var(--color-grab) !important;
   box-shadow: 10px 10px 0px 0px var(--color-grab) !important;
+}
+
+.neo-btn.paypal {
+  background-color: #0070BA !important;
+  color: var(--color-white) !important;
+}
+
+.hover-paypal:hover {
+  border-color: #0070BA !important;
+  box-shadow: 10px 10px 0px 0px #0070BA !important;
 }
 
 .flex-basis-0 {
