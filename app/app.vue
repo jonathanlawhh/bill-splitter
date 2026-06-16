@@ -39,8 +39,7 @@
 
       <div class="neo-card d-flex align-center ga-4" style="max-width: 450px; width: 100%;">
         <v-icon color="#00F5D4" size="32">mdi-code-json</v-icon>
-        <a href="/?bill=eyJtZXJjaGFudE5hbWUiOiJKb25hdGhhbiIsImRhdGUiOiIyMDI2LTA2LTAxIiwiY3VycmVuY3kiOiJSTSIsIml0ZW1zIjpbeyJuYW1lIjoiRGV2ZWxvcG1lbnQgQ29zdCIsInF1YW50aXR5IjoxLCJwcmljZSI6OTh9LHsibmFtZSI6IlJlY2VpcHQgcHJvY2Vzc2luZyIsInF1YW50aXR5Ijo5OTk5OSwicHJpY2UiOjAuMDJ9LHsibmFtZSI6IldlYiBzZXJ2ZXIgcGVyIHByb2Nlc3MiLCJxdWFudGl0eSI6OTk5OTksInByaWNlIjowLjAxfSx7Im5hbWUiOiJNaWxrIHRlYSBkdXJpbmcgZGV2ZWxvcG1lbnQiLCJxdWFudGl0eSI6MSwicHJpY2UiOjcuOTB9XSwidGF4IjowLCJpc1RheEluSXRlbSI6ZmFsc2UsInNlcnZpY2VDaGFyZ2UiOjAsImRpc2NvdW50IjowLCJzdWJ0b3RhbCI6MTAwLCJ0b3RhbCI6MTA3LjkwLCJ0YXhSYXRlIjowLCJzZXJ2aWNlQ2hhcmdlUmF0ZSI6MCwiZGlzY291bnRSYXRlIjowfQ=="
-          class="ml-4 text-decoration-none text-black">
+        <a :href="dynamicCostLink" class="ml-4 text-decoration-none text-black">
           <div class="font-weight-black">{{ $t('support.costTitle') }}</div>
           <div class="text-body-small">{{ $t('support.costSubtitle1') }}</div>
           <div class="text-body-small">{{ $t('support.costSubtitle2') }}</div>
@@ -175,6 +174,69 @@
 
 <script setup>
 import { ref, onMounted, provide, computed } from 'vue'
+import { safeBtoa } from '~/utils/helpers'
+
+const dynamicCostLink = computed(() => {
+  const dateObj = new Date()
+  const year = dateObj.getFullYear()
+  const month = String(dateObj.getMonth() + 1).padStart(2, '0')
+  const date = String(dateObj.getDate()).padStart(2, '0')
+  const formattedDate = `${year}-${month}-${date}`
+
+  const billObj = {
+    isReceipt: true,
+    merchantName: "Jonathan Law",
+    date: formattedDate,
+    currency: "RM",
+    items: [
+      {
+        name: "Development cost",
+        quantity: 1,
+        price: 98
+      },
+      {
+        name: "AI & server cost per receipt",
+        quantity: 99999,
+        price: 0.03
+      },
+      {
+        name: "奶茶 - Milk tea during development",
+        quantity: 1,
+        price: 7.9
+      }
+    ],
+    tax: 0,
+    isTaxInItem: true,
+    serviceCharge: 0,
+    discount: 0,
+    subtotal: 105.90,
+    total: 105.90,
+    googleMapsUrl: "https://www.google.com/maps/search/?api=1&query=CHAGEE",
+    taxRate: 0,
+    serviceChargeRate: 0,
+    discountRate: 0,
+    isSharedTax: true,
+    isSharedDiscount: true,
+    isSharedServiceCharge: true,
+    splitSettings: {
+      "0": {
+        enabled: true,
+        parts: 4
+      },
+      "1": {
+        enabled: false,
+        parts: 2
+      },
+      "2": {
+        enabled: false,
+        parts: 2
+      }
+    }
+  }
+
+  const encoded = safeBtoa(JSON.stringify(billObj))
+  return `/?bill=${encoded}`
+})
 
 const { locale, setLocale, t } = useI18n()
 
