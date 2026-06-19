@@ -38,6 +38,8 @@
     "fromLibrary": "From Photo Library",
     "openCamera": "OPEN CAMERA",
     "captureLive": "Capture Receipt Live",
+    "manualEntry": "MANUAL ENTRY",
+    "createManually": "Create Receipt Manually",
     "dailyLimitTitle": "DAILY LIMIT REACHED",
     "dailyLimitText": "You have processed 3 receipts today. Please try again tomorrow!",
     "noApiKeyTitle": "No Gemini API Key found",
@@ -130,5 +132,28 @@
     "bannerText": "Tired of loading pages? Install the app for instant receipt scanning even when you have crappy signal.",
     "dismissBtn": "Later",
     "installSuccess": "App installed successfully! Quick check: do your friends still owe you money?"
+  },
+  "manual": {
+    "title": "Create Manual Receipt",
+    "merchantName": "Merchant Name",
+    "merchantLocation": "Merchant Location",
+    "currency": "Currency",
+    "date": "Date",
+    "discount": "Discount (%)",
+    "tax": "Tax (%)",
+    "serviceCharge": "Service Charge (%)",
+    "items": "Items",
+    "itemName": "Item Name",
+    "qty": "Qty",
+    "price": "Price",
+    "addItem": "Add Item",
+    "subtotal": "Subtotal",
+    "totalDiscount": "Total Discount",
+    "totalTax": "Total Tax",
+    "totalServiceCharge": "Total Service Charge",
+    "grandTotal": "Grand Total",
+    "createBtn": "Create Receipt",
+    "cancelBtn": "Cancel",
+    "validationError": "Provide at least one item with name, quantity > 0, price > 0."
   }
 }

@@ -23,6 +23,13 @@
           <span class="btn-title">{{ $t('landing.openCamera') }}</span>
           <span class="btn-subtitle">{{ $t('landing.captureLive') }}</span>
         </button>
+
+        <!-- Button 3: Manual Entry -->
+        <NuxtLink to="/manual" class="neo-card neo-large-btn navy text-decoration-none text-white">
+          <v-icon size="64" class="mb-4" color="white">mdi-keyboard-outline</v-icon>
+          <span class="btn-title">{{ $t('landing.manualEntry') }}</span>
+          <span class="btn-subtitle">{{ $t('landing.createManually') }}</span>
+        </NuxtLink>
       </div>
 
       <!-- Limit warning -->
@@ -863,14 +870,14 @@ watch(
 /* Button grids */
 .buttons-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr 1fr 1fr;
   gap: 24px;
   width: 100%;
-  max-width: 700px;
+  max-width: 900px;
   margin: 0 auto;
 }
 
-@media (max-width: 600px) {
+@media (max-width: 800px) {
   .buttons-grid {
     grid-template-columns: 1fr;
   }
@@ -892,6 +899,11 @@ watch(
 
 .neo-large-btn.pink {
   background-color: var(--color-pink) !important;
+  color: var(--color-white) !important;
+}
+
+.neo-large-btn.navy {
+  background-color: #253966 !important;
   color: var(--color-white) !important;
 }
 

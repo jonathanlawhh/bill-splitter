@@ -38,6 +38,8 @@
     "fromLibrary": "从相册选择",
     "openCamera": "打开相机",
     "captureLive": "实时拍摄收据",
+    "manualEntry": "手动输入",
+    "createManually": "手动创建收据",
     "dailyLimitTitle": "已达到每日限制",
     "dailyLimitText": "您今天已处理了 3 张收据。请明天再试！",
     "noApiKeyTitle": "未找到 Gemini API 密钥",
@@ -130,5 +132,28 @@
     "bannerText": "网速太慢？安装应用即可快速启动，即便在信号稀烂的地方也能离线扫描收据。",
     "dismissBtn": "等下再装",
     "installSuccess": "应用安装成功！顺便问一句：你朋友把欠你的钱还了吗？"
+  },
+  "manual": {
+    "title": "手动创建收据",
+    "merchantName": "商家名称",
+    "merchantLocation": "商家位置",
+    "currency": "货币",
+    "date": "日期",
+    "discount": "折扣 (%)",
+    "tax": "税率 (%)",
+    "serviceCharge": "服务费 (%)",
+    "items": "商品列表",
+    "itemName": "商品名称",
+    "qty": "数量",
+    "price": "单价",
+    "addItem": "添加商品",
+    "subtotal": "商品小计",
+    "totalDiscount": "总折扣",
+    "totalTax": "总税额",
+    "totalServiceCharge": "总服务费",
+    "grandTotal": "总计",
+    "createBtn": "生成收据",
+    "cancelBtn": "取消",
+    "validationError": "请至少添加一个包含名称、数量 > 0 且单价 > 0 的商品。"
   }
 }

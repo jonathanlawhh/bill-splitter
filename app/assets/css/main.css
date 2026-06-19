@@ -190,3 +190,7 @@ p {
   font-size: 0.8rem;
   text-transform: uppercase;
 }
+
+.justify-between {
+  justify-content: space-between !important;
+}
